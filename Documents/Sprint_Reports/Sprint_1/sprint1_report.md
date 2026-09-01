@@ -6,3 +6,4 @@
 |Frans Rastas|parts 1-3 and 5 of the project plan            |5            | done
 |Juli Javanainen |parts 6 and 8 of the project plan            |3            | done
 |Tuomas Kolari |part 7 of the project plan            |2            | done
+|Olivia Toratti |part 4 of the project plan            |2            | done
