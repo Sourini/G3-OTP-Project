@@ -6,3 +6,6 @@
 |Frans Rastas|parts 1-3 and 5 of the project plan            |5            | done
 |Quotes          |`"Isn't this fun?"`            |"Isn't this fun?"            |
 |Dashes          |`-- is en-dash, --- is em-dash`|-- is en-dash, --- is em-dash|
+|Juli Javanainen |parts 6 and 8 of the project plan            |3            | done
+|Quotes          |`"I'm so tired"`            |"Exhausted"            |
+|Dashes          |`-- is en-dash, --- is em-dash`|-- is en-dash, --- is em-dash|
