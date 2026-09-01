@@ -9,3 +9,4 @@
 |Juli Javanainen |parts 6 and 8 of the project plan            |3            | done
 |Quotes          |`"I'm so tired"`            |"Exhausted"            |
 |Dashes          |`-- is en-dash, --- is em-dash`|-- is en-dash, --- is em-dash|
+|Tuomas Kolari |part 7 of the project plan            |2            | done
