@@ -1,238 +1,241 @@
 package otpproju.screens;
 
-import javafx.application.Platform; 
-import javafx.geometry.Insets; 
-import javafx.geometry.Pos; 
-import javafx.scene.Scene; 
-import javafx.scene.control.*; 
-import javafx.scene.layout.VBox; 
-import javafx.stage.Stage; 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import otpproju.model.Flashcard;
 
-import java.net.URI; 
-import java.net.http.HttpClient; 
-import java.net.http.HttpRequest; 
-import java.net.http.HttpResponse; 
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StudyCards {
-    private final HttpClient httpClient = HttpClient.newHttpClient();
 
-    private final List<String> cards = new ArrayList<>();
-    private int currentCardIndex = 0;
+    private final List<Flashcard> cards = new ArrayList<>();
+
+    private int currentCardIndex;
     private Label cardText;
+    private Label progressText;
     private Button answerButton;
     private Button nextButton;
 
     public void show(Stage stage) {
-        // Title
         Label title = new Label("Study Cards");
 
-        // Card set ID
         Label cardSetLabel = new Label("Card Set ID:");
+
         TextField cardSetField = new TextField();
         cardSetField.setPromptText("Enter the card set ID");
+        cardSetField.setMaxWidth(300);
 
-        // Load cards button
         Button loadCardsButton = new Button("Load Cards");
-        loadCardsButton.setMaxWidth(Double.MAX_VALUE);
+        loadCardsButton.setMaxWidth(300);
 
-        // Card display
         cardText = new Label(
-            "Enter a card set ID and load the cards to start studying."
+                "Enter a card set ID and load the cards " +
+                        "to start studying."
         );
         cardText.setWrapText(true);
         cardText.setAlignment(Pos.CENTER);
+        cardText.setMinHeight(100);
+        cardText.setMaxWidth(400);
 
-        // Answer button
+        progressText = new Label();
+
         answerButton = new Button("Show Answer");
         answerButton.setDisable(true);
-        answerButton.setMaxWidth(Double.MAX_VALUE);
+        answerButton.setMaxWidth(300);
 
-        // Next button
         nextButton = new Button("Next Card");
         nextButton.setDisable(true);
-        nextButton.setMaxWidth(Double.MAX_VALUE);
+        nextButton.setMaxWidth(300);
 
-        // Back button
         Button backButton = new Button("Back");
-        backButton.setMaxWidth(Double.MAX_VALUE);
+        backButton.setMaxWidth(300);
 
-        // Load cards action
-        loadCardsButton.setOnAction(e -> {
-            String cardSetId = cardSetField.getText().trim();
-            if (cardSetId.isEmpty()) {
-                showAlert(
-                    Alert.AlertType.ERROR, 
-                    "Error", 
-                    "Missing fields", 
-                    "Please enter a card set ID."
-                );
-                return;
-            }
-            loadCardsButton.setDisable(true);
-            loadCardsButton.setText("Loading...");
-            loadCards(cardSetId, stage, loadCardsButton);
-        });
-
-        // Show answer action
-        answerButton.setOnAction(e -> {
-            if (!cards.isEmpty()) {
-                Card currentCard = cards.get(currentCardIndex);
-                cardText.setText(currentCard.getBack());
-                answerButton.setDisable(true);
-                nextButton.setDisable(false);
-            }
-        });
-
-        // Next card action
-        nextButton.setOnAction(e -> {
-            if (cards.isEmpty()) {
-                return;
-            }
-
-            currentCardIndex++;
-            if (currentCardIndex < cards.size()) {
-                showCurrentCard();
-            } else {
-                currentCardIndex = cards.size() - 1;
-                showAlert(
-                    Alert.AlertType.INFORMATION,
-                    "End of Cards",
-                    null,
-                    "You have reached the end of the card set."
-                );
-                answerButton.setDisable(true);
-                nextButton.setDisable(true);
-            }
-        });
-
-        // Back button action
-        backButton.setOnAction(e -> {
-            new UserPage().show(stage);
-        });
-
-        // Layout
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(20));
-        layout.setAlignment(Pos.CENTER);
-        layout.setMaxWidth(400);
-
-        layout.getChildren().addAll(
-            title,
-            new Label(""),
-            cardSetLabel,
-            cardSetField,
-            loadCardsButton,
-            new Label(""),
-            cardText,
-            answerButton,
-            nextButton,
-            new Label(""),
-            backButton
+        loadCardsButton.setOnAction(event ->
+                loadSampleCards(cardSetField.getText())
         );
 
-        VBox root = new VBox(layout);
-        root.setAlignment(Pos.CENTER);
+        answerButton.setOnAction(event -> showAnswer());
 
-        Scene scene = new Scene(root, 600, 500);
+        nextButton.setOnAction(event -> showNextCard());
+
+        backButton.setOnAction(event ->
+                new UserPage().show(stage)
+        );
+
+        VBox layout = new VBox(
+                10,
+                title,
+                cardSetLabel,
+                cardSetField,
+                loadCardsButton,
+                progressText,
+                cardText,
+                answerButton,
+                nextButton,
+                backButton
+        );
+
+        layout.setPadding(new Insets(20));
+        layout.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(layout, 600, 500);
+
         stage.setTitle("Study Cards");
         stage.setScene(scene);
         stage.show();
     }
 
-    private void loadCards(
-        String cardSetId,
-        Stage stage,
-        Button loadCardsButton
-    ) {
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:8080/cardsets/" + cardSetId + "/cards"))
-            .GET()
-            .build();
+    /**
+     * Temporary frontend-only implementation.
+     *
+     * Later this method can call FlashcardService or FlashcardDao
+     * to retrieve cards from MariaDB.
+     */
+    private void loadSampleCards(String cardSetIdText) {
+        if (cardSetIdText == null || cardSetIdText.isBlank()) {
+            showAlert(
+                    Alert.AlertType.ERROR,
+                    "Invalid card set",
+                    "Missing card set ID",
+                    "Please enter a card set ID."
+            );
+            return;
+        }
 
-        Thread thread = new Thread(() -> {
-            try {
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                Platform.runLater(() -> {
-                    loadCardsButton.setDisable(false);
-                    loadCardsButton.setText("Load Cards");
+        int setId;
 
-                    if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                        System.out.println("Cards loaded successfully.");
-                        // Parse the response and populate the cards list
-                        showAlert(
-                            Alert.AlertType.INFORMATION, 
-                            "Success", 
-                            null, 
-                            "Cards loaded successfully."
-                        );
-                    } else {
-                        showAlert(
-                            Alert.AlertType.ERROR, 
-                            "Error", 
-                            "Failed to load cards", 
-                            "Please check the card set ID and try again."
-                        );
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    loadCardsButton.setDisable(false);
-                    loadCardsButton.setText("Load Cards");
-                    showAlert(
-                        Alert.AlertType.ERROR, 
-                        "Error", 
-                        "Failed to load cards", 
-                        "An error occurred while loading the cards. Please try again."
-                    );
-                });
-            }
-        });
+        try {
+            setId = Integer.parseInt(cardSetIdText.trim());
+        } catch (NumberFormatException exception) {
+            showAlert(
+                    Alert.AlertType.ERROR,
+                    "Invalid card set",
+                    "Invalid card set ID",
+                    "The card set ID must be a number."
+            );
+            return;
+        }
 
-        thread.setDaemon(true);
-        thread.start();
+        if (setId <= 0) {
+            showAlert(
+                    Alert.AlertType.ERROR,
+                    "Invalid card set",
+                    "Invalid card set ID",
+                    "The card set ID must be positive."
+            );
+            return;
+        }
+
+        cards.clear();
+
+        cards.add(new Flashcard(
+                setId,
+                "What does JVM stand for?",
+                "Java Virtual Machine"
+        ));
+
+        cards.add(new Flashcard(
+                setId,
+                "Which keyword is used to create a Java class?",
+                "class"
+        ));
+
+        cards.add(new Flashcard(
+                setId,
+                "What does SQL stand for?",
+                "Structured Query Language"
+        ));
+
+        currentCardIndex = 0;
+        showCurrentCard();
+
+        showAlert(
+                Alert.AlertType.INFORMATION,
+                "Cards loaded",
+                null,
+                cards.size() + " sample cards were loaded."
+        );
+    }
+
+    private void showAnswer() {
+        if (cards.isEmpty()) {
+            return;
+        }
+
+        Flashcard currentCard = cards.get(currentCardIndex);
+
+        cardText.setText(currentCard.getAnswer());
+        answerButton.setDisable(true);
+        nextButton.setDisable(false);
+    }
+
+    private void showNextCard() {
+        if (cards.isEmpty()) {
+            return;
+        }
+
+        if (currentCardIndex < cards.size() - 1) {
+            currentCardIndex++;
+            showCurrentCard();
+            return;
+        }
+
+        progressText.setText(
+                "Completed " + cards.size() +
+                        " of " + cards.size() + " cards"
+        );
+
+        answerButton.setDisable(true);
+        nextButton.setDisable(true);
+
+        showAlert(
+                Alert.AlertType.INFORMATION,
+                "End of cards",
+                null,
+                "You have reached the end of the card set."
+        );
     }
 
     private void showCurrentCard() {
-        if (!cards.isEmpty()) {
-            Card currentCard = cards.get(currentCardIndex);
-            cardText.setText(currentCard.getFront());
-            answerButton.setDisable(false);
+        if (cards.isEmpty()) {
+            cardText.setText("No cards are available.");
+            progressText.setText("");
+            answerButton.setDisable(true);
             nextButton.setDisable(true);
+            return;
         }
+
+        Flashcard currentCard = cards.get(currentCardIndex);
+
+        cardText.setText(currentCard.getQuestion());
+
+        progressText.setText(
+                "Card " + (currentCardIndex + 1) +
+                        " of " + cards.size()
+        );
+
+        answerButton.setDisable(false);
+        nextButton.setDisable(true);
     }
 
     private void showAlert(
-        Alert.AlertType alertType,
-        String title,
-        String header,
-        String message
+            Alert.AlertType alertType,
+            String title,
+            String header,
+            String message
     ) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    // Card class to represent a flashcard
-    private static class Card {
-        private final String front;
-        private final String back;
-
-        public Card(String front, String back) {
-            this.front = front;
-            this.back = back;
-        }
-
-        public String getFront() {
-            return front;
-        }
-
-        public String getBack() {
-            return back;
-        }
     }
 }
