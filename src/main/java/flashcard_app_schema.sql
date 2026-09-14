@@ -1,4 +1,6 @@
-CREATE DATABASE flashcard_app;
+CREATE DATABASE IF NOT EXISTS flashcard_app
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 USE flashcard_app;
 
 -- USERS
@@ -16,6 +18,8 @@ CREATE TABLE flashcard_sets (
     user_id     INT NOT NULL,
     title       VARCHAR(100) NOT NULL,
     description TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE CASCADE
@@ -28,20 +32,10 @@ CREATE TABLE flashcards (
     set_id      INT NOT NULL,
     question    TEXT NOT NULL,
     answer      TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (set_id) REFERENCES flashcard_sets(set_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
--- CRUD testaus
-INSERT INTO users (username, password, usertype)
-VALUES ('demo_user', 'hashed_password_here', 'student');
-
-INSERT INTO flashcard_sets (user_id, title, description)
-VALUES (1, 'Spanish Basics', 'Common Spanish vocabulary words');
-
-INSERT INTO flashcards (set_id, question, answer)
-VALUES
-(1, 'How do you say "hello"?', 'Hola'),
-(1, 'How do you say "goodbye"?', 'Adiós');
