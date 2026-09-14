@@ -1,3 +1,5 @@
+USE flashcard_app;
+
 -- Sample-Data
 INSERT INTO flashcard_sets (user_id, title, description)
 SELECT
