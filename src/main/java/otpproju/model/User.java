@@ -55,7 +55,7 @@ public class User {
         return username;
     }
     public void setUsername(String username) {
-        this.email = email;
+        this.username = username;
     }
 
     public String getEmail() {
