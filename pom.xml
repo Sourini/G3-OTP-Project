@@ -56,12 +56,18 @@
     </dependencies>
 
     <build>
+        <finalName>otp_proju_g3</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
+                    <!--<archive>
+                        <manifest>
+                            <mainClass>Main</mainClass>
+                        </manifest>
+                    </archive> -->
                     <release>21</release>
                 </configuration>
             </plugin>

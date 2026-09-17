@@ -7,6 +7,7 @@ public class User {
 
     private Integer userId;
     private String username;
+    private String email;
     private String passwordHash;
     private UserType userType;
     private LocalDateTime createdAt;
@@ -17,10 +18,12 @@ public class User {
 
     public User(
             String username,
+            String email,
             String passwordHash,
             UserType userType
     ) {
         this.username = username;
+        this.email = email;
         this.passwordHash = passwordHash;
         this.userType = userType;
     }
@@ -28,12 +31,14 @@ public class User {
     public User(
             Integer userId,
             String username,
+            String email,
             String passwordHash,
             UserType userType,
             LocalDateTime createdAt
     ) {
         this.userId = userId;
         this.username = username;
+        this.email = email;
         this.passwordHash = passwordHash;
         this.userType = userType;
         this.createdAt = createdAt;
@@ -50,7 +55,14 @@ public class User {
         return username;
     }
     public void setUsername(String username) {
-        this.username = username;
+        this.email = email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPasswordHash() {
@@ -100,6 +112,7 @@ public class User {
         return "User{" +
                 "userId=" + userId +
                 ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 ", userType=" + userType +
                 ", createdAt=" + createdAt +
                 '}';

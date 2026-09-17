@@ -12,6 +12,7 @@ class UserTest {
     void newUserConstructorStoresProvidedValues() {
         User user = new User(
                 "student1",
+                "student1@example.com",
                 "hashed-password",
                 User.UserType.STUDENT
         );
@@ -20,6 +21,10 @@ class UserTest {
         assertEquals(
                 "hashed-password",
                 user.getPasswordHash()
+        );
+        assertEquals(
+                "student1@example.com",
+                user.getEmail()
         );
         assertEquals(
                 User.UserType.STUDENT,
@@ -37,6 +42,7 @@ class UserTest {
         User user = new User(
                 10,
                 "teacher1",
+                "teacher1@example.com",
                 "hashed-password",
                 User.UserType.TEACHER,
                 createdAt
@@ -44,6 +50,10 @@ class UserTest {
 
         assertEquals(10, user.getUserId());
         assertEquals("teacher1", user.getUsername());
+        assertEquals(
+                "teacher1@example.com",
+                user.getEmail()
+        );
         assertEquals(
                 User.UserType.TEACHER,
                 user.getUserType()
@@ -141,6 +151,7 @@ class UserTest {
     void toStringDoesNotRevealPasswordHash() {
         User user = new User(
                 "student1",
+                "student1@example.com",
                 "secret-hash-value",
                 User.UserType.STUDENT
         );
@@ -148,6 +159,7 @@ class UserTest {
         String result = user.toString();
 
         assertTrue(result.contains("student1"));
+        assertTrue(result.contains("student1@example.com"));
         assertFalse(result.contains("secret-hash-value"));
     }
 }

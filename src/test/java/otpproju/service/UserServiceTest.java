@@ -19,11 +19,16 @@ class UserServiceTest {
     void createUserCreatesStudentWithValidInput() {
         User user = service.createUser(
                 "student1",
+                "student1@example.com",
                 "hashed-password",
                 User.UserType.STUDENT
         );
 
         assertEquals("student1", user.getUsername());
+        assertEquals(
+                "student1@example.com",
+                user.getEmail()
+        );
         assertEquals(
                 "hashed-password",
                 user.getPasswordHash()
@@ -38,11 +43,16 @@ class UserServiceTest {
     void createUserCreatesTeacherWithValidInput() {
         User user = service.createUser(
                 "teacher1",
+                "teacher1@example.com",
                 "hashed-password",
                 User.UserType.TEACHER
         );
 
         assertEquals("teacher1", user.getUsername());
+        assertEquals(
+                "teacher1@example.com",
+                user.getEmail()
+        );
         assertEquals(
                 User.UserType.TEACHER,
                 user.getUserType()
@@ -50,14 +60,34 @@ class UserServiceTest {
     }
 
     @Test
-    void createUserTrimsUsername() {
+    void createUserTrimsUsernameAndEmail() {
         User user = service.createUser(
                 "  student1  ",
+                "  student1@example.com  ",
                 "hashed-password",
                 User.UserType.STUDENT
         );
 
         assertEquals("student1", user.getUsername());
+        assertEquals(
+                "student1@example.com",
+                user.getEmail()
+        );
+    }
+
+    @Test
+    void createUserConvertsEmailToLowercase() {
+        User user = service.createUser(
+                "student1",
+                "Student1@EXAMPLE.COM",
+                "hashed-password",
+                User.UserType.STUDENT
+        );
+
+        assertEquals(
+                "student1@example.com",
+                user.getEmail()
+        );
     }
 
     @Test
@@ -66,6 +96,7 @@ class UserServiceTest {
 
         User user = service.createUser(
                 "student1",
+                "student1@example.com",
                 passwordHash,
                 User.UserType.STUDENT
         );
@@ -79,6 +110,7 @@ class UserServiceTest {
                 IllegalArgumentException.class,
                 () -> service.createUser(
                         null,
+                        "student1@example.com",
                         "hashed-password",
                         User.UserType.STUDENT
                 )
@@ -91,6 +123,7 @@ class UserServiceTest {
                 IllegalArgumentException.class,
                 () -> service.createUser(
                         "   ",
+                        "student1@example.com",
                         "hashed-password",
                         User.UserType.STUDENT
                 )
@@ -103,6 +136,7 @@ class UserServiceTest {
 
         User user = service.createUser(
                 username,
+                "student1@example.com",
                 "hashed-password",
                 User.UserType.STUDENT
         );
@@ -118,6 +152,64 @@ class UserServiceTest {
                 IllegalArgumentException.class,
                 () -> service.createUser(
                         username,
+                        "student1@example.com",
+                        "hashed-password",
+                        User.UserType.STUDENT
+                )
+        );
+    }
+
+    @Test
+    void createUserRejectsNullEmail() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.createUser(
+                        "student1",
+                        null,
+                        "hashed-password",
+                        User.UserType.STUDENT
+                )
+        );
+    }
+
+    @Test
+    void createUserRejectsBlankEmail() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.createUser(
+                        "student1",
+                        "   ",
+                        "hashed-password",
+                        User.UserType.STUDENT
+                )
+        );
+    }
+
+    @Test
+    void createUserRejectsInvalidEmail() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.createUser(
+                        "student1",
+                        "not-an-email",
+                        "hashed-password",
+                        User.UserType.STUDENT
+                )
+        );
+    }
+
+    @Test
+    void createUserRejectsEmailLongerThan255Characters() {
+        String email =
+                "a".repeat(244) + "@example.com";
+
+        assertTrue(email.length() > 255);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.createUser(
+                        "student1",
+                        email,
                         "hashed-password",
                         User.UserType.STUDENT
                 )
@@ -130,6 +222,7 @@ class UserServiceTest {
                 IllegalArgumentException.class,
                 () -> service.createUser(
                         "student1",
+                        "student1@example.com",
                         null,
                         User.UserType.STUDENT
                 )
@@ -142,6 +235,7 @@ class UserServiceTest {
                 IllegalArgumentException.class,
                 () -> service.createUser(
                         "student1",
+                        "student1@example.com",
                         "   ",
                         User.UserType.STUDENT
                 )
@@ -154,6 +248,7 @@ class UserServiceTest {
                 IllegalArgumentException.class,
                 () -> service.createUser(
                         "student1",
+                        "student1@example.com",
                         "hashed-password",
                         null
                 )
@@ -164,6 +259,7 @@ class UserServiceTest {
     void newUserDoesNotHaveDatabaseGeneratedValues() {
         User user = service.createUser(
                 "student1",
+                "student1@example.com",
                 "hashed-password",
                 User.UserType.STUDENT
         );
