@@ -21,6 +21,28 @@ jobs:
     name: Run tests and generate coverage
     runs-on: ubuntu-latest
 
+    env:
+      DB_URL: jdbc:mariadb://127.0.0.1:3306/flashcard_app
+      DB_USERNAME: root
+      DB_PASSWORD: test_password
+
+    services:
+      mariadb:
+        image: mariadb:11.4
+
+        env:
+          MARIADB_ROOT_PASSWORD: test_password
+          MARIADB_DATABASE: flashcard_app
+
+        ports:
+          - 3306:3306
+
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
@@ -31,6 +53,14 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+
+      - name: Initialize database schema
+        run: |
+          docker exec -i "${{ job.services.mariadb.id }}" \
+            mariadb \
+            -u root \
+            -p"$DB_PASSWORD" \
+            < src/main/java/otpproju/flashcard_app_schema.sql
 
       - name: Run tests and generate JaCoCo report
         run: mvn --batch-mode clean verify
@@ -44,7 +74,7 @@ jobs:
           path: target/site/jacoco
 
   deploy:
-    name: Deploy report to GitHub Pages
+    name: Deploy report
     needs: test
     runs-on: ubuntu-latest
 

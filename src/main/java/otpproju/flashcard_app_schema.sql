@@ -4,7 +4,7 @@ CREATE DATABASE IF NOT EXISTS flashcard_app
 USE flashcard_app;
 
 -- USERS
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id     INT AUTO_INCREMENT PRIMARY KEY,
     username    VARCHAR(50) NOT NULL UNIQUE,
     email       VARCHAR(255) NOT NULL UNIQUE,
@@ -14,7 +14,7 @@ CREATE TABLE users (
 );
 
 -- FLASHCARD SETS
-CREATE TABLE flashcard_sets (
+CREATE TABLE IF NOT EXISTS flashcard_sets (
     set_id      INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
     title       VARCHAR(100) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE flashcard_sets (
 );
 
 -- FLASHCARDS
-CREATE TABLE flashcards (
+CREATE TABLE IF NOT EXISTS flashcards (
     card_id     INT AUTO_INCREMENT PRIMARY KEY,
     set_id      INT NOT NULL,
     question    TEXT NOT NULL,
