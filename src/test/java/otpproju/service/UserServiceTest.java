@@ -1,270 +1,416 @@
 package otpproju.service;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import otpproju.model.User;
+import otpproju.repository.UserRepository;
+
+import java.util.NoSuchElementException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("integration")
 class UserServiceTest {
 
+    private UserRepository repository;
     private UserService service;
+
+    private List<Integer> createdUserIds;
 
     @BeforeEach
     void setUp() {
-        service = new UserService();
+        repository = new UserRepository();
+        service = new UserService(repository);
+        createdUserIds = new ArrayList<>();
+    }
+
+    @AfterEach
+    void cleanUp() {
+        for (Integer userId : createdUserIds) {
+            repository.deleteById(userId);
+        }
     }
 
     @Test
-    void createUserCreatesStudentWithValidInput() {
-        User user = service.createUser(
-                "student1",
-                "student1@example.com",
-                "hashed-password",
-                User.UserType.STUDENT
+    void registersAndPersistsStudent() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User user = registerTestUser(
+                "student_" + uniqueValue,
+                "student_" + uniqueValue + "@example.com",
+                "secret123"
         );
 
-        assertEquals("student1", user.getUsername());
-        assertEquals(
-                "student1@example.com",
-                user.getEmail()
-        );
-        assertEquals(
-                "hashed-password",
-                user.getPasswordHash()
-        );
+        assertNotNull(user.getUserId());
+        assertNotNull(user.getCreatedAt());
+
         assertEquals(
                 User.UserType.STUDENT,
                 user.getUserType()
         );
-    }
 
-    @Test
-    void createUserCreatesTeacherWithValidInput() {
-        User user = service.createUser(
-                "teacher1",
-                "teacher1@example.com",
-                "hashed-password",
-                User.UserType.TEACHER
-        );
-
-        assertEquals("teacher1", user.getUsername());
         assertEquals(
-                "teacher1@example.com",
-                user.getEmail()
-        );
-        assertEquals(
-                User.UserType.TEACHER,
-                user.getUserType()
-        );
-    }
-
-    @Test
-    void createUserTrimsUsernameAndEmail() {
-        User user = service.createUser(
-                "  student1  ",
-                "  student1@example.com  ",
-                "hashed-password",
-                User.UserType.STUDENT
+                "student_" + uniqueValue,
+                user.getUsername()
         );
 
-        assertEquals("student1", user.getUsername());
         assertEquals(
-                "student1@example.com",
+                "student_" + uniqueValue + "@example.com",
                 user.getEmail()
         );
     }
 
     @Test
-    void createUserConvertsEmailToLowercase() {
-        User user = service.createUser(
-                "student1",
-                "Student1@EXAMPLE.COM",
-                "hashed-password",
-                User.UserType.STUDENT
+    void registrationTrimsUsernameAndNormalizesEmail() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User user = registerTestUser(
+                "  student_" + uniqueValue + "  ",
+                "  Student_" + uniqueValue +
+                        "@EXAMPLE.COM  ",
+                "secret123"
         );
 
         assertEquals(
-                "student1@example.com",
+                "student_" + uniqueValue,
+                user.getUsername()
+        );
+
+        assertEquals(
+                "student_" + uniqueValue +
+                        "@example.com",
                 user.getEmail()
         );
     }
 
     @Test
-    void createUserDoesNotModifyPasswordHash() {
-        String passwordHash = " hash with spaces ";
+    void registrationHashesPassword() {
+        String uniqueValue = UUID.randomUUID().toString();
+        String plainPassword = "secret123";
 
-        User user = service.createUser(
-                "student1",
-                "student1@example.com",
-                passwordHash,
-                User.UserType.STUDENT
+        User user = registerTestUser(
+                "hash_" + uniqueValue,
+                "hash_" + uniqueValue + "@example.com",
+                plainPassword
         );
 
-        assertEquals(passwordHash, user.getPasswordHash());
+        assertNotEquals(
+                plainPassword,
+                user.getPasswordHash()
+        );
+
+        assertTrue(
+                user.getPasswordHash().startsWith("$2")
+        );
     }
 
     @Test
-    void createUserRejectsNullUsername() {
+    void loginSucceedsWithCorrectCredentials() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User registered = registerTestUser(
+                "login_" + uniqueValue,
+                "login_" + uniqueValue + "@example.com",
+                "secret123"
+        );
+
+        User loggedIn = service.login(
+                registered.getEmail(),
+                "secret123"
+        );
+
+        assertEquals(registered.getUserId(), loggedIn.getUserId());
+        assertEquals(registered.getEmail(), loggedIn.getEmail());
+    }
+
+    @Test
+    void loginNormalizesEmail() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User registered = registerTestUser(
+                "case_" + uniqueValue,
+                "case_" + uniqueValue + "@example.com",
+                "secret123"
+        );
+
+        User loggedIn = service.login(
+                "  " + registered.getEmail().toUpperCase() + "  ",
+                "secret123"
+        );
+
+        assertEquals(registered.getUserId(), loggedIn.getUserId());
+    }
+
+    @Test
+    void loginRejectsWrongPassword() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User registered = registerTestUser(
+                "wrong_" + uniqueValue,
+                "wrong_" + uniqueValue + "@example.com",
+                "secret123"
+        );
+
         assertThrows(
-                IllegalArgumentException.class,
-                () -> service.createUser(
-                        null,
-                        "student1@example.com",
-                        "hashed-password",
-                        User.UserType.STUDENT
+                AuthenticationException.class,
+                () -> service.login(
+                        registered.getEmail(),
+                        "incorrect-password"
                 )
         );
     }
 
     @Test
-    void createUserRejectsBlankUsername() {
+    void loginRejectsUnknownEmail() {
+        assertThrows(
+                AuthenticationException.class,
+                () -> service.login(
+                        UUID.randomUUID() + "@example.com",
+                        "secret123"
+                )
+        );
+    }
+
+    @Test
+    void registrationRejectsDuplicateUsername() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        registerTestUser(
+                "duplicate_" + uniqueValue,
+                "first_" + uniqueValue + "@example.com",
+                "secret123"
+        );
+
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.createUser(
+                () -> service.registerUser(
+                        "duplicate_" + uniqueValue,
+                        "second_" + uniqueValue +
+                                "@example.com",
+                        "secret123"
+                )
+        );
+    }
+
+    @Test
+    void registrationRejectsDuplicateEmail() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        registerTestUser(
+                "first_" + uniqueValue,
+                "duplicate_" + uniqueValue +
+                        "@example.com",
+                "secret123"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.registerUser(
+                        "second_" + uniqueValue,
+                        "duplicate_" + uniqueValue +
+                                "@example.com",
+                        "secret123"
+                )
+        );
+    }
+
+    @Test
+    void registrationRejectsBlankUsername() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.registerUser(
                         "   ",
-                        "student1@example.com",
-                        "hashed-password",
-                        User.UserType.STUDENT
+                        "student@example.com",
+                        "secret123"
                 )
         );
     }
 
     @Test
-    void createUserAcceptsUsernameWithExactly50Characters() {
-        String username = "a".repeat(50);
-
-        User user = service.createUser(
-                username,
-                "student1@example.com",
-                "hashed-password",
-                User.UserType.STUDENT
-        );
-
-        assertEquals(50, user.getUsername().length());
-    }
-
-    @Test
-    void createUserRejectsUsernameLongerThan50Characters() {
-        String username = "a".repeat(51);
-
+    void registrationRejectsUsernameLongerThan50Characters() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.createUser(
-                        username,
-                        "student1@example.com",
-                        "hashed-password",
-                        User.UserType.STUDENT
+                () -> service.registerUser(
+                        "a".repeat(51),
+                        "student@example.com",
+                        "secret123"
                 )
         );
     }
 
     @Test
-    void createUserRejectsNullEmail() {
+    void registrationRejectsInvalidEmail() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.createUser(
-                        "student1",
-                        null,
-                        "hashed-password",
-                        User.UserType.STUDENT
-                )
-        );
-    }
-
-    @Test
-    void createUserRejectsBlankEmail() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> service.createUser(
-                        "student1",
-                        "   ",
-                        "hashed-password",
-                        User.UserType.STUDENT
-                )
-        );
-    }
-
-    @Test
-    void createUserRejectsInvalidEmail() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> service.createUser(
-                        "student1",
+                () -> service.registerUser(
+                        "student",
                         "not-an-email",
-                        "hashed-password",
-                        User.UserType.STUDENT
+                        "secret123"
                 )
         );
     }
 
     @Test
-    void createUserRejectsEmailLongerThan255Characters() {
-        String email =
-                "a".repeat(244) + "@example.com";
-
-        assertTrue(email.length() > 255);
-
+    void registrationRejectsShortPassword() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.createUser(
-                        "student1",
-                        email,
-                        "hashed-password",
-                        User.UserType.STUDENT
+                () -> service.registerUser(
+                        "student",
+                        "student@example.com",
+                        "12345"
                 )
         );
     }
 
     @Test
-    void createUserRejectsNullPasswordHash() {
+    void registrationRejectsPasswordLongerThan72Characters() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.createUser(
-                        "student1",
-                        "student1@example.com",
-                        null,
-                        User.UserType.STUDENT
+                () -> service.registerUser(
+                        "student",
+                        "student@example.com",
+                        "a".repeat(73)
                 )
         );
     }
 
     @Test
-    void createUserRejectsBlankPasswordHash() {
+    void loginRejectsEmptyPassword() {
         assertThrows(
-                IllegalArgumentException.class,
-                () -> service.createUser(
-                        "student1",
-                        "student1@example.com",
-                        "   ",
-                        User.UserType.STUDENT
+                AuthenticationException.class,
+                () -> service.login(
+                        "student@example.com",
+                        ""
                 )
         );
     }
 
     @Test
-    void createUserRejectsNullUserType() {
+    void constructorRejectsNullRepository() {
         assertThrows(
-                IllegalArgumentException.class,
-                () -> service.createUser(
-                        "student1",
-                        "student1@example.com",
-                        "hashed-password",
-                        null
+                NullPointerException.class,
+                () -> new UserService(null)
+        );
+    }
+
+    private User registerTestUser(
+            String username,
+            String email,
+            String password
+    ) {
+        User user = service.registerUser(
+                username,
+                email,
+                password
+        );
+
+        createdUserIds.add(user.getUserId());
+
+        return user;
+    }
+
+    @Test
+    void updatesUserProfile() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User user = registerTestUser(
+                "profile_" + uniqueValue,
+                "profile_" + uniqueValue + "@example.com",
+                "secret123"
+        );
+
+        User updated = service.updateProfile(
+                user.getUserId(),
+                "updated_" + uniqueValue,
+                "UPDATED_" + uniqueValue + "@EXAMPLE.COM"
+        );
+
+        assertEquals(
+                "updated_" + uniqueValue,
+                updated.getUsername()
+        );
+
+        assertEquals(
+                "updated_" + uniqueValue + "@example.com",
+                updated.getEmail()
+        );
+    }
+
+    @Test
+    void changesPassword() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User user = registerTestUser(
+                "password_" + uniqueValue,
+                "password_" + uniqueValue + "@example.com",
+                "old-password"
+        );
+
+        service.changePassword(
+                user.getUserId(),
+                "old-password",
+                "new-password"
+        );
+
+        assertThrows(
+                AuthenticationException.class,
+                () -> service.login(
+                        user.getEmail(),
+                        "old-password"
+                )
+        );
+
+        User loggedIn = service.login(
+                user.getEmail(),
+                "new-password"
+        );
+
+        assertEquals(user.getUserId(), loggedIn.getUserId());
+    }
+
+    @Test
+    void passwordChangeRejectsIncorrectCurrentPassword() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User user = registerTestUser(
+                "wrong_current_" + uniqueValue,
+                "wrong_current_" + uniqueValue +
+                        "@example.com",
+                "old-password"
+        );
+
+        assertThrows(
+                AuthenticationException.class,
+                () -> service.changePassword(
+                        user.getUserId(),
+                        "incorrect-password",
+                        "new-password"
                 )
         );
     }
 
     @Test
-    void newUserDoesNotHaveDatabaseGeneratedValues() {
-        User user = service.createUser(
-                "student1",
-                "student1@example.com",
-                "hashed-password",
-                User.UserType.STUDENT
+    void deletesUserAccount() {
+        String uniqueValue = UUID.randomUUID().toString();
+
+        User user = registerTestUser(
+                "delete_" + uniqueValue,
+                "delete_" + uniqueValue + "@example.com",
+                "secret123"
         );
 
-        assertNull(user.getUserId());
-        assertNull(user.getCreatedAt());
+        service.deleteUser(user.getUserId());
+
+        createdUserIds.remove(user.getUserId());
+
+        assertThrows(
+                NoSuchElementException.class,
+                () -> service.getUser(user.getUserId())
+        );
     }
 }

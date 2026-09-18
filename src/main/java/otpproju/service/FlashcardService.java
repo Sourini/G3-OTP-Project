@@ -1,7 +1,9 @@
 package otpproju.service;
 
 import otpproju.model.Flashcard;
+import otpproju.model.FlashcardSet;
 import otpproju.repository.FlashcardRepository;
+import otpproju.repository.FlashcardSetRepository;
 import otpproju.repository.RepositoryException;
 
 import java.util.List;
@@ -10,43 +12,45 @@ import java.util.Objects;
 
 public class FlashcardService {
 
-    private final FlashcardRepository repository;
+    private final FlashcardRepository cardRepository;
+    private final FlashcardSetRepository setRepository;
 
     public FlashcardService(
-            FlashcardRepository repository
+            FlashcardRepository cardRepository,
+            FlashcardSetRepository setRepository
     ) {
-        this.repository = Objects.requireNonNull(
-                repository,
+        this.cardRepository = Objects.requireNonNull(
+                cardRepository,
                 "Flashcard repository must not be null"
+        );
+
+        this.setRepository = Objects.requireNonNull(
+                setRepository,
+                "Flashcard set repository must not be null"
         );
     }
 
     public Flashcard createFlashcard(
+            int requestingUserId,
             int setId,
             String question,
             String answer
     ) {
-        validatePositiveId(setId, "Set ID");
-
-        String cleanedQuestion =
-                validateText(question, "Question");
-
-        String cleanedAnswer =
-                validateText(answer, "Answer");
+        requireOwnedSet(requestingUserId, setId);
 
         Flashcard flashcard = new Flashcard(
                 setId,
-                cleanedQuestion,
-                cleanedAnswer
+                validateText(question, "Question"),
+                validateText(answer, "Answer")
         );
 
-        return repository.create(flashcard);
+        return cardRepository.create(flashcard);
     }
 
     public Flashcard getFlashcard(int cardId) {
         validatePositiveId(cardId, "Card ID");
 
-        return repository.findById(cardId).orElseThrow(
+        return cardRepository.findById(cardId).orElseThrow(
                 () -> new NoSuchElementException(
                         "Flashcard was not found"
                 )
@@ -56,23 +60,18 @@ public class FlashcardService {
     public List<Flashcard> getFlashcardsForSet(int setId) {
         validatePositiveId(setId, "Set ID");
 
-        return repository.findBySetId(setId);
+        return cardRepository.findBySetId(setId);
     }
 
     public Flashcard updateFlashcard(
+            int requestingUserId,
             int cardId,
             String question,
             String answer
     ) {
         validatePositiveId(cardId, "Card ID");
 
-        String cleanedQuestion =
-                validateText(question, "Question");
-
-        String cleanedAnswer =
-                validateText(answer, "Answer");
-
-        Flashcard flashcard = repository
+        Flashcard flashcard = cardRepository
                 .findById(cardId)
                 .orElseThrow(
                         () -> new NoSuchElementException(
@@ -80,16 +79,26 @@ public class FlashcardService {
                         )
                 );
 
-        flashcard.setQuestion(cleanedQuestion);
-        flashcard.setAnswer(cleanedAnswer);
+        requireOwnedSet(
+                requestingUserId,
+                flashcard.getSetId()
+        );
 
-        if (!repository.update(flashcard)) {
+        flashcard.setQuestion(
+                validateText(question, "Question")
+        );
+
+        flashcard.setAnswer(
+                validateText(answer, "Answer")
+        );
+
+        if (!cardRepository.update(flashcard)) {
             throw new RepositoryException(
                     "Flashcard could not be updated"
             );
         }
 
-        return repository
+        return cardRepository
                 .findById(cardId)
                 .orElseThrow(
                         () -> new RepositoryException(
@@ -99,14 +108,58 @@ public class FlashcardService {
                 );
     }
 
-    public void deleteFlashcard(int cardId) {
+    public void deleteFlashcard(
+            int requestingUserId,
+            int cardId
+    ) {
         validatePositiveId(cardId, "Card ID");
 
-        if (!repository.deleteById(cardId)) {
-            throw new NoSuchElementException(
-                    "Flashcard was not found"
+        Flashcard flashcard = cardRepository
+                .findById(cardId)
+                .orElseThrow(
+                        () -> new NoSuchElementException(
+                                "Flashcard was not found"
+                        )
+                );
+
+        requireOwnedSet(
+                requestingUserId,
+                flashcard.getSetId()
+        );
+
+        if (!cardRepository.deleteById(cardId)) {
+            throw new RepositoryException(
+                    "Flashcard could not be deleted"
             );
         }
+    }
+
+    private FlashcardSet requireOwnedSet(
+            int requestingUserId,
+            int setId
+    ) {
+        validatePositiveId(
+                requestingUserId,
+                "Requesting user ID"
+        );
+
+        validatePositiveId(setId, "Set ID");
+
+        FlashcardSet set = setRepository
+                .findById(setId)
+                .orElseThrow(
+                        () -> new NoSuchElementException(
+                                "Flashcard set was not found"
+                        )
+                );
+
+        if (set.getUserId() != requestingUserId) {
+            throw new AuthorizationException(
+                    "User does not own this flashcard set"
+            );
+        }
+
+        return set;
     }
 
     private void validatePositiveId(
