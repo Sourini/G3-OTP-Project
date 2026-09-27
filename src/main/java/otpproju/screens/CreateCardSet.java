@@ -1,145 +1,193 @@
 package otpproju.screens;
 
-import javafx.application.Platform; 
-import javafx.geometry.Insets; 
-import javafx.geometry.Pos; 
-import javafx.scene.Scene; 
-import javafx.scene.control.*; 
-import javafx.scene.layout.VBox; 
-import javafx.stage.Stage; 
-
-import java.net.URI; 
-import java.net.http.HttpClient; 
-import java.net.http.HttpRequest; 
-import java.net.http.HttpResponse;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import otpproju.model.User;
+import otpproju.repository.FlashcardSetRepository;
+import otpproju.service.FlashcardSetService;
 
 public class CreateCardSet {
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+
+    private final User user;
+    private final FlashcardSetService flashcardSetService;
+
+    public CreateCardSet(User user) {
+
+        this.user = user;
+
+        FlashcardSetRepository repository =
+                new FlashcardSetRepository();
+
+        flashcardSetService =
+                new FlashcardSetService(repository);
+    }
 
     public void show(Stage stage) {
-        // Title
-        Label title = new Label("Create Card Set");
 
-        // Desc
-        Label desc = new Label(
-            "Create a new card set to organize your flashcards."
+        Label title =
+                new Label("Create Flashcard Set");
+
+        title.setStyle(
+                "-fx-font-size: 23px;" +
+                "-fx-font-weight: bold;"
         );
 
-        // Card set name
-        Label cardSetNameLabel = new Label("Card Set Name:");
-        TextField cardSetNameField = new TextField();
-        cardSetNameField.setPromptText("Enter the card set name");
+        Label description =
+                new Label(
+                        "Create a set to organize your flashcards."
+                );
 
-        // Create card set button
-        Button createCardSetButton = new Button("Create Card Set");
-        createCardSetButton.setMaxWidth(Double.MAX_VALUE);
+        TextField titleField =
+                new TextField();
 
-        // Back button
-        Button backButton = new Button("Back");
-        backButton.setMaxWidth(Double.MAX_VALUE);
+        titleField.setPromptText(
+                "Set name"
+        );
 
-        // Create card set action
-        createCardSetButton.setOnAction(e -> {
-            String cardSetName = cardSetNameField.getText();
+        titleField.setPrefHeight(45);
 
-            if (cardSetName.isEmpty()) {
-                Alert alerts = new Alert(Alert.AlertType.ERROR);
-                alerts.setTitle("Error");
-                alerts.setHeaderText("Missing fields");
-                alerts.setContentText("Please fill in all fields.");
-                alerts.showAndWait();
-            } else {
-                createCardSet(cardSetName, stage, createCardSetButton);
+        TextArea descriptionField =
+                new TextArea();
+
+        descriptionField.setPromptText(
+                "Description (optional)"
+        );
+
+        descriptionField.setPrefRowCount(4);
+
+        Button createButton =
+                new Button("Create Set");
+
+        createButton.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        createButton.setPrefHeight(45);
+
+        Button backButton =
+                new Button("Back");
+
+        backButton.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        backButton.setPrefHeight(40);
+
+        createButton.setOnAction(e -> {
+
+            String titleText =
+                    titleField.getText().trim();
+
+            String descriptionText =
+                    descriptionField.getText().trim();
+
+            if (titleText.isEmpty()) {
+
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "Missing title",
+                        "Please enter a name for your card set."
+                );
+
+                return;
+            }
+
+            createButton.setDisable(true);
+            createButton.setText("Creating...");
+
+            try {
+
+                flashcardSetService.createFlashcardSet(
+                        user.getUserId(),
+                        titleText,
+                        descriptionText
+                );
+
+                showAlert(
+                        Alert.AlertType.INFORMATION,
+                        "Success",
+                        "Your flashcard set was created."
+                );
+
+                new UserPage(user).show(stage);
+
+            } catch (Exception ex) {
+
+                createButton.setDisable(false);
+                createButton.setText("Create Set");
+
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "Could not create set",
+                        ex.getMessage()
+                );
             }
         });
 
-        // Back action
-        backButton.setOnAction(e -> {
-            new UserPage().show(stage);
-        });
+        backButton.setOnAction(e ->
+                new UserPage(user).show(stage)
+        );
 
-        // Layout
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(20));
-        layout.setAlignment(Pos.CENTER);
-        layout.setMaxWidth(300);
-        layout.getChildren().addAll(title, desc, cardSetNameLabel, cardSetNameField, createCardSetButton, backButton);
+        VBox box = new VBox(
+                15,
+                title,
+                description,
+                titleField,
+                descriptionField,
+                createButton,
+                backButton
+        );
 
-        VBox root = new VBox(layout);
-        root.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(root, 400, 300);
+        box.setPadding(
+                new Insets(30)
+        );
+
+        box.setAlignment(
+                Pos.TOP_CENTER
+        );
+
+        box.setMaxWidth(360);
+
+        VBox root = new VBox(box);
+
+        root.setAlignment(Pos.TOP_CENTER);
+
+        root.setStyle(
+                "-fx-background-color: #f5f7fb;"
+        );
+
+        Scene scene = new Scene(
+                root,
+                390,
+                750
+        );
+
+        stage.setTitle("Create Set");
         stage.setScene(scene);
-        stage.setTitle("Create Card Set");
         stage.show();
     }
 
-    private void createCardSet(
-        String cardSetName,
-        Stage stage,
-        Button createCardSetButton
-    ) {
-        // Create the request body
-        String json = String.format("{\"name\": \"%s\"}", cardSetName);
-
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:8080/api/cardsets"))
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(json))
-            .build();
-
-        Thread thread = new Thread(() -> {
-            try {
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-                Platform.runLater(() -> {
-                    createCardSetButton.setDisable(false);
-                    createCardSetButton.setText("Create Card Set");
-
-                    if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Card Set Created");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Your card set has been created successfully!");
-                        alert.showAndWait();
-                    } else {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("Failed to create card set");
-                        alert.setContentText("An error occurred while creating the card set. Please try again.");
-                        alert.showAndWait();
-                    }
-                });
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                Platform.runLater(() -> {
-                    createCardSetButton.setDisable(false);
-                    createCardSetButton.setText("Create Card Set");
-
-                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to create card set");
-                });
-            }
-        });
-
-        thread.setDaemon(true);
-        thread.start();
-    }
-
-    private String escapeJson(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replace("\\", "\\\\").replace("\"", "\\\"");
-    }
-
     private void showAlert(
-        Alert.AlertType alertType,
-        String title,
-        String message
+            Alert.AlertType type,
+            String title,
+            String message
     ) {
-        Alert alert = new Alert(alertType);
+
+        Alert alert =
+                new Alert(type);
+
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+
         alert.showAndWait();
     }
 }

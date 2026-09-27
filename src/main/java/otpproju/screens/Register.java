@@ -1,101 +1,199 @@
 package otpproju.screens;
 
-import javafx.geometry.Insets; 
-import javafx.geometry.Pos; 
-import javafx.scene.Scene; 
-import javafx.scene.control.*; 
-import javafx.scene.layout.VBox; 
-import javafx.stage.Stage; 
-
-import java.net.URI; 
-import java.net.http.HttpClient; 
-import java.net.http.HttpRequest; 
-import java.net.http.HttpResponse;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import otpproju.model.User;
+import otpproju.repository.UserRepository;
+import otpproju.service.UserService;
 
 public class Register {
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+
+    private final UserService userService;
+
+    public Register() {
+
+        UserRepository userRepository =
+                new UserRepository();
+
+        userService =
+                new UserService(userRepository);
+    }
 
     public void show(Stage stage) {
-        // Title
-        Label title = new Label("Create Account");
 
-        // Desc
-        Label desc = new Label(
-            "Create an account to start using your flashcards."
+        Label appTitle =
+                new Label("OTP FLASHCARDS");
+
+        appTitle.setStyle(
+                "-fx-font-size: 26px;" +
+                "-fx-font-weight: bold;"
         );
 
-        // Username
-        Label usernameLabel = new Label("Username:");
-        TextField usernameField = new TextField();
-        usernameField.setPromptText("Enter your username");
+        Label title =
+                new Label("Create Account");
 
-        // Email
-        Label emailLabel = new Label("Email:");
-        TextField emailField = new TextField();
-        emailField.setPromptText("Enter your email");
+        title.setStyle(
+                "-fx-font-size: 22px;" +
+                "-fx-font-weight: bold;"
+        );
 
-        // Password
-        Label passwordLabel = new Label("Password:");
-        PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("Choose a password");
+        Label description =
+                new Label(
+                        "Create an account to start studying."
+                );
 
-        // Register button
-        Button registerButton = new Button("Create Account");
-        registerButton.setMaxWidth(Double.MAX_VALUE);
+        TextField usernameField =
+                new TextField();
 
-        // Login link
-        Label loginText = new Label("Already have an account?");
-        Hyperlink loginLink = new Hyperlink("Login here.");
+        usernameField.setPromptText(
+                "Username"
+        );
 
-        // Register action
+        usernameField.setPrefHeight(45);
+
+        TextField emailField =
+                new TextField();
+
+        emailField.setPromptText(
+                "Email"
+        );
+
+        emailField.setPrefHeight(45);
+
+        PasswordField passwordField =
+                new PasswordField();
+
+        passwordField.setPromptText(
+                "Password"
+        );
+
+        passwordField.setPrefHeight(45);
+
+        Button registerButton =
+                new Button("Create Account");
+
+        registerButton.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        registerButton.setPrefHeight(45);
+
+        Label loginText =
+                new Label(
+                        "Already have an account?"
+                );
+
+        Hyperlink loginLink =
+                new Hyperlink("Login");
+
         registerButton.setOnAction(e -> {
-            String username = usernameField.getText();
-            String email = emailField.getText();
-            String password = passwordField.getText();
 
-            if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Alert alerts = new Alert(Alert.AlertType.ERROR);
-                alerts.setTitle("Error");
-                alerts.setHeaderText("Missing fields");
-                alerts.setContentText("Please fill in all fields.");
-                alerts.showAndWait();
+            String username =
+                    usernameField.getText().trim();
+
+            String email =
+                    emailField.getText().trim();
+
+            String password =
+                    passwordField.getText();
+
+            if (username.isEmpty()
+                    || email.isEmpty()
+                    || password.isEmpty()) {
+
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "Missing fields",
+                        "Please fill in all fields."
+                );
+
                 return;
             }
 
             if (password.length() < 6) {
-                Alert alerts = new Alert(Alert.AlertType.ERROR);
-                alerts.setTitle("Error");
-                alerts.setHeaderText("Weak password");
-                alerts.setContentText("Password must be at least 6 characters long.");
-                alerts.showAndWait();
+
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "Password too short",
+                        "Password must contain at least 6 characters."
+                );
+
                 return;
             }
 
             registerButton.setDisable(true);
-            registerButton.setText("Creating account...");
-            registerUser(username, email, password, stage, registerButton);
+            registerButton.setText(
+                    "Creating account..."
+            );
+
+            try {
+
+                User user =
+                        userService.registerUser(
+                                username,
+                                email,
+                                password
+                        );
+
+                showAlert(
+                        Alert.AlertType.INFORMATION,
+                        "Account created",
+                        "Your account has been created successfully."
+                );
+
+                new Login().show(stage);
+
+            } catch (Exception ex) {
+
+                registerButton.setDisable(false);
+                registerButton.setText(
+                        "Create Account"
+                );
+
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "Registration failed",
+                        ex.getMessage()
+                );
+            }
         });
 
-        // Login nav
-        loginLink.setOnAction(e -> {
-            new Login().show(stage);
-        });
+        loginLink.setOnAction(e ->
+                new Login().show(stage)
+        );
 
-        // Layout
-        VBox container = new VBox(10);
-        container.setAlignment(Pos.CENTER);
-        container.setPadding(new Insets(30));
-        container.setMaxWidth(400);
+        VBox box =
+                new VBox(
+                        12
+                );
 
-        container.getChildren().addAll(
-                title,
-                desc,
+        box.setAlignment(
+                Pos.CENTER
+        );
+
+        box.setPadding(
+                new Insets(30)
+        );
+
+        box.setMaxWidth(330);
+
+        box.getChildren().addAll(
+                appTitle,
                 new Label(""),
-                usernameLabel,
+                title,
+                description,
+                new Label(""),
                 usernameField,
-                emailLabel,
                 emailField,
-                passwordLabel,
                 passwordField,
                 registerButton,
                 new Label(""),
@@ -103,79 +201,42 @@ public class Register {
                 loginLink
         );
 
-        VBox root = new VBox(container);
-        root.setAlignment(Pos.CENTER);
-        Scene scene = new Scene(root, 600, 500);
-        stage.setTitle("Register");
+        VBox root =
+                new VBox(box);
+
+        root.setAlignment(
+                Pos.CENTER
+        );
+
+        root.setStyle(
+                "-fx-background-color: #f5f7fb;"
+        );
+
+        Scene scene =
+                new Scene(
+                        root,
+                        390,
+                        750
+                );
+
+        stage.setTitle("Create Account");
         stage.setScene(scene);
         stage.show();
     }
 
-    private void registerUser(
-            String username,
-            String email,
-            String password,
-            Stage stage,
-            Button registerButton
+    private void showAlert(
+            Alert.AlertType type,
+            String title,
+            String message
     ) {
-        String json = String.format(
-                "{\"username\":\"%s\", \"email\":\"%s\", \"password\":\"%s\"}",
-                escapeJson(username), escapeJson(email), escapeJson(password)
-        );
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8080/api/auth/register"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json))
-                .build();
+        Alert alert =
+                new Alert(type);
 
-        Thread thread = new Thread(() -> {
-            try {
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                javafx.application.Platform.runLater(() -> {
-                    registerButton.setDisable(false);
-                    registerButton.setText("Create Account");
-
-                    if (response.statusCode() == 201) {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Success");
-                        alert.setHeaderText("Account created");
-                        alert.setContentText("Your account has been created successfully. You can now log in.");
-                        alert.showAndWait();
-                        new Login().show(stage);
-                    } else {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("Registration failed");
-                        alert.setContentText("An error occurred while creating your account. Please try again.");
-                        alert.showAndWait();
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                javafx.application.Platform.runLater(() -> {
-                    registerButton.setDisable(false);
-                    registerButton.setText("Create Account");
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("Registration failed");
-                    alert.setContentText("An error occurred while creating your account. Please try again.");
-                    alert.showAndWait();
-                });
-            }
-        });
-        thread.setDaemon(true);
-        thread.start();
-    }
-
-    private String escapeJson(String str) {
-        return str.replace("\"", "\\\"");
-    }
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+
         alert.showAndWait();
     }
 }

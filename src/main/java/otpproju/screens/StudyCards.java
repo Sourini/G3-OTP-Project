@@ -1,241 +1,401 @@
 package otpproju.screens;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import otpproju.model.Flashcard;
-
-import java.util.ArrayList;
-import java.util.List;
+import otpproju.model.FlashcardSet;
+import otpproju.model.User;
+import otpproju.repository.FlashcardRepository;
+import otpproju.repository.FlashcardSetRepository;
+import otpproju.service.FlashcardService;
+import otpproju.service.FlashcardSetService;
 
 public class StudyCards {
 
-    private final List<Flashcard> cards = new ArrayList<>();
+    private final User user;
 
-    private int currentCardIndex;
+    private final FlashcardService flashcardService;
+    private final FlashcardSetService flashcardSetService;
+
+    private final List<Flashcard> cards =
+            new ArrayList<>();
+
+    private int currentCardIndex = 0;
+
     private Label cardText;
     private Label progressText;
+    private Label setTitle;
+
     private Button answerButton;
     private Button nextButton;
 
+    public StudyCards(User user) {
+
+        this.user = user;
+
+        FlashcardRepository cardRepository =
+                new FlashcardRepository();
+
+        FlashcardSetRepository setRepository =
+                new FlashcardSetRepository();
+
+        flashcardService =
+                new FlashcardService(
+                        cardRepository,
+                        setRepository
+                );
+
+        flashcardSetService =
+                new FlashcardSetService(
+                        setRepository
+                );
+    }
+
+    public StudyCards(
+            User user,
+            FlashcardSet selectedSet
+    ) {
+
+        this(user);
+
+        loadCards(selectedSet);
+    }
+
     public void show(Stage stage) {
-        Label title = new Label("Study Cards");
 
-        Label cardSetLabel = new Label("Card Set ID:");
+        setTitle =
+                new Label("Study Cards");
 
-        TextField cardSetField = new TextField();
-        cardSetField.setPromptText("Enter the card set ID");
-        cardSetField.setMaxWidth(300);
-
-        Button loadCardsButton = new Button("Load Cards");
-        loadCardsButton.setMaxWidth(300);
-
-        cardText = new Label(
-                "Enter a card set ID and load the cards " +
-                        "to start studying."
+        setTitle.setStyle(
+                "-fx-font-size: 23px;" +
+                "-fx-font-weight: bold;"
         );
+
+        ComboBox<FlashcardSet> setComboBox =
+                new ComboBox<>();
+
+        setComboBox.setPromptText(
+                "Choose a set to study"
+        );
+
+        setComboBox.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        try {
+
+            List<FlashcardSet> sets =
+                    flashcardSetService
+                            .getFlashcardSetsForUser(
+                                    user.getUserId()
+                            );
+
+            setComboBox
+                    .getItems()
+                    .addAll(sets);
+
+        } catch (Exception ex) {
+
+            showAlert(
+                    Alert.AlertType.ERROR,
+                    "Could not load sets",
+                    ex.getMessage()
+            );
+        }
+
+        Button loadButton =
+                new Button("Start Studying");
+
+        loadButton.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        loadButton.setPrefHeight(42);
+
+        progressText =
+                new Label("Choose a set to begin.");
+
+        progressText.setStyle(
+                "-fx-font-size: 14px;"
+        );
+
+        cardText =
+                new Label(
+                        "Your flashcard will appear here."
+                );
+
         cardText.setWrapText(true);
-        cardText.setAlignment(Pos.CENTER);
-        cardText.setMinHeight(100);
-        cardText.setMaxWidth(400);
 
-        progressText = new Label();
+        cardText.setAlignment(
+                Pos.CENTER
+        );
 
-        answerButton = new Button("Show Answer");
+        cardText.setMaxWidth(310);
+
+        cardText.setMinHeight(220);
+
+        cardText.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-background-radius: 20;" +
+                "-fx-border-color: #dddddd;" +
+                "-fx-border-radius: 20;" +
+                "-fx-font-size: 20px;" +
+                "-fx-padding: 30px;"
+        );
+
+        answerButton =
+                new Button("Show Answer");
+
+        answerButton.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        answerButton.setPrefHeight(45);
+
         answerButton.setDisable(true);
-        answerButton.setMaxWidth(300);
 
-        nextButton = new Button("Next Card");
+        nextButton =
+                new Button("Next Card");
+
+        nextButton.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        nextButton.setPrefHeight(45);
+
         nextButton.setDisable(true);
-        nextButton.setMaxWidth(300);
 
-        Button backButton = new Button("Back");
-        backButton.setMaxWidth(300);
+        Button backButton =
+                new Button("Back");
 
-        loadCardsButton.setOnAction(event ->
-                loadSampleCards(cardSetField.getText())
+        backButton.setMaxWidth(
+                Double.MAX_VALUE
         );
 
-        answerButton.setOnAction(event -> showAnswer());
+        loadButton.setOnAction(e -> {
 
-        nextButton.setOnAction(event -> showNextCard());
+            FlashcardSet selected =
+                    setComboBox.getValue();
 
-        backButton.setOnAction(event ->
-                new UserPage().show(stage)
+            if (selected == null) {
+
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "No set selected",
+                        "Please choose a flashcard set."
+                );
+
+                return;
+            }
+
+            loadCards(selected);
+        });
+
+        answerButton.setOnAction(e ->
+                showAnswer()
         );
 
-        VBox layout = new VBox(
-                10,
-                title,
-                cardSetLabel,
-                cardSetField,
-                loadCardsButton,
-                progressText,
-                cardText,
-                answerButton,
-                nextButton,
-                backButton
+        nextButton.setOnAction(e ->
+                showNextCard()
         );
 
-        layout.setPadding(new Insets(20));
-        layout.setAlignment(Pos.CENTER);
+        backButton.setOnAction(e ->
+                new UserPage(user).show(stage)
+        );
 
-        Scene scene = new Scene(layout, 600, 500);
+        VBox content =
+                new VBox(
+                        15,
+                        setTitle,
+                        setComboBox,
+                        loadButton,
+                        progressText,
+                        cardText,
+                        answerButton,
+                        nextButton,
+                        backButton
+                );
+
+        content.setAlignment(
+                Pos.TOP_CENTER
+        );
+
+        content.setPadding(
+                new Insets(25)
+        );
+
+        content.setMaxWidth(360);
+
+        VBox root =
+                new VBox(content);
+
+        root.setAlignment(
+                Pos.TOP_CENTER
+        );
+
+        root.setStyle(
+                "-fx-background-color: #f5f7fb;"
+        );
+
+        Scene scene =
+                new Scene(
+                        root,
+                        390,
+                        750
+                );
 
         stage.setTitle("Study Cards");
         stage.setScene(scene);
         stage.show();
     }
 
-    /**
-     * Temporary frontend-only implementation.
-     *
-     * Later this method can call FlashcardService or FlashcardDao
-     * to retrieve cards from MariaDB.
-     */
-    private void loadSampleCards(String cardSetIdText) {
-        if (cardSetIdText == null || cardSetIdText.isBlank()) {
-            showAlert(
-                    Alert.AlertType.ERROR,
-                    "Invalid card set",
-                    "Missing card set ID",
-                    "Please enter a card set ID."
-            );
-            return;
-        }
-
-        int setId;
+    private void loadCards(
+            FlashcardSet selectedSet
+    ) {
 
         try {
-            setId = Integer.parseInt(cardSetIdText.trim());
-        } catch (NumberFormatException exception) {
+
+            cards.clear();
+
+            cards.addAll(
+                    flashcardService.getFlashcardsForSet(
+                            selectedSet.getSetId()
+                    )
+            );
+
+            currentCardIndex = 0;
+
+            setTitle.setText(
+                    selectedSet.getTitle()
+            );
+
+            if (cards.isEmpty()) {
+
+                cardText.setText(
+                        "This set does not have any cards yet."
+                );
+
+                progressText.setText(
+                        "0 cards"
+                );
+
+                answerButton.setDisable(true);
+                nextButton.setDisable(true);
+
+                return;
+            }
+
+            showCurrentCard();
+
+        } catch (Exception ex) {
+
             showAlert(
                     Alert.AlertType.ERROR,
-                    "Invalid card set",
-                    "Invalid card set ID",
-                    "The card set ID must be a number."
+                    "Could not load cards",
+                    ex.getMessage()
             );
-            return;
         }
-
-        if (setId <= 0) {
-            showAlert(
-                    Alert.AlertType.ERROR,
-                    "Invalid card set",
-                    "Invalid card set ID",
-                    "The card set ID must be positive."
-            );
-            return;
-        }
-
-        cards.clear();
-
-        cards.add(new Flashcard(
-                setId,
-                "What does JVM stand for?",
-                "Java Virtual Machine"
-        ));
-
-        cards.add(new Flashcard(
-                setId,
-                "Which keyword is used to create a Java class?",
-                "class"
-        ));
-
-        cards.add(new Flashcard(
-                setId,
-                "What does SQL stand for?",
-                "Structured Query Language"
-        ));
-
-        currentCardIndex = 0;
-        showCurrentCard();
-
-        showAlert(
-                Alert.AlertType.INFORMATION,
-                "Cards loaded",
-                null,
-                cards.size() + " sample cards were loaded."
-        );
     }
 
-    private void showAnswer() {
+    private void showCurrentCard() {
+
         if (cards.isEmpty()) {
             return;
         }
 
-        Flashcard currentCard = cards.get(currentCardIndex);
+        Flashcard currentCard =
+                cards.get(currentCardIndex);
 
-        cardText.setText(currentCard.getAnswer());
+        cardText.setText(
+                currentCard.getQuestion()
+        );
+
+        progressText.setText(
+                "Card " +
+                (currentCardIndex + 1) +
+                " of " +
+                cards.size()
+        );
+
+        answerButton.setText(
+                "Show Answer"
+        );
+
+        answerButton.setDisable(false);
+
+        nextButton.setDisable(true);
+    }
+
+    private void showAnswer() {
+
+        if (cards.isEmpty()) {
+            return;
+        }
+
+        Flashcard currentCard =
+                cards.get(currentCardIndex);
+
+        cardText.setText(
+                currentCard.getAnswer()
+        );
+
         answerButton.setDisable(true);
         nextButton.setDisable(false);
     }
 
     private void showNextCard() {
+
         if (cards.isEmpty()) {
             return;
         }
 
-        if (currentCardIndex < cards.size() - 1) {
+        if (currentCardIndex <
+                cards.size() - 1) {
+
             currentCardIndex++;
+
             showCurrentCard();
-            return;
-        }
 
-        progressText.setText(
-                "Completed " + cards.size() +
-                        " of " + cards.size() + " cards"
-        );
+        } else {
 
-        answerButton.setDisable(true);
-        nextButton.setDisable(true);
+            progressText.setText(
+                    "Finished " +
+                    cards.size() +
+                    " cards!"
+            );
 
-        showAlert(
-                Alert.AlertType.INFORMATION,
-                "End of cards",
-                null,
-                "You have reached the end of the card set."
-        );
-    }
+            cardText.setText(
+                    "Great job! 🎉"
+            );
 
-    private void showCurrentCard() {
-        if (cards.isEmpty()) {
-            cardText.setText("No cards are available.");
-            progressText.setText("");
             answerButton.setDisable(true);
             nextButton.setDisable(true);
-            return;
         }
-
-        Flashcard currentCard = cards.get(currentCardIndex);
-
-        cardText.setText(currentCard.getQuestion());
-
-        progressText.setText(
-                "Card " + (currentCardIndex + 1) +
-                        " of " + cards.size()
-        );
-
-        answerButton.setDisable(false);
-        nextButton.setDisable(true);
     }
 
     private void showAlert(
-            Alert.AlertType alertType,
+            Alert.AlertType type,
             String title,
-            String header,
             String message
     ) {
-        Alert alert = new Alert(alertType);
+
+        Alert alert =
+                new Alert(type);
+
         alert.setTitle(title);
-        alert.setHeaderText(header);
+        alert.setHeaderText(null);
         alert.setContentText(message);
+
         alert.showAndWait();
     }
 }
