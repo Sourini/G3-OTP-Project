@@ -34,10 +34,7 @@ public class UserPage {
                 "Hello, " + user.getUsername() + " 👋"
         );
 
-        greeting.setStyle(
-                "-fx-font-size: 24px;" +
-                "-fx-font-weight: bold;"
-        );
+        greeting.getStyleClass().add("page-title");
 
         Label subtitle = new Label(
                 "Ready to study?"
@@ -55,10 +52,7 @@ public class UserPage {
         Label createSetTitle =
                 new Label("Create a flashcard set");
 
-        createSetTitle.setStyle(
-                "-fx-font-size: 17px;" +
-                "-fx-font-weight: bold;"
-        );
+        createSetTitle.getStyleClass().add("card-title");
 
         Label createSetDescription =
                 new Label(
@@ -84,16 +78,7 @@ public class UserPage {
                 createSetButton
         );
 
-        createSetCard.setPadding(
-                new Insets(18)
-        );
-
-        createSetCard.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 15;" +
-                "-fx-border-radius: 15;" +
-                "-fx-border-color: #dddddd;"
-        );
+        createSetCard.getStyleClass().add("dashboard-card");
 
         // Study Card
         VBox studyCard = new VBox(8);
@@ -101,10 +86,7 @@ public class UserPage {
         Label studyTitle =
                 new Label("Study your cards");
 
-        studyTitle.setStyle(
-                "-fx-font-size: 17px;" +
-                "-fx-font-weight: bold;"
-        );
+        studyTitle.getStyleClass().add("card-title");
 
         Label studyDescription =
                 new Label(
@@ -130,25 +112,13 @@ public class UserPage {
                 studyButton
         );
 
-        studyCard.setPadding(
-                new Insets(18)
-        );
-
-        studyCard.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 15;" +
-                "-fx-border-radius: 15;" +
-                "-fx-border-color: #dddddd;"
-        );
+        studyCard.getStyleClass().add("dashboard-card");
 
         // Recent Sets
         Label recentTitle =
                 new Label("My Flashcard Sets");
 
-        recentTitle.setStyle(
-                "-fx-font-size: 18px;" +
-                "-fx-font-weight: bold;"
-        );
+        recentTitle.getStyleClass().add("section-title");
 
         VBox setsBox = new VBox(8);
 
@@ -195,14 +165,14 @@ public class UserPage {
 
         VBox root = new VBox(scrollPane);
 
-        root.setStyle(
-                "-fx-background-color: #f5f7fb;"
-        );
-
         Scene scene = new Scene(
                 root,
                 390,
                 750
+        );
+
+        scene.getStylesheets().add(
+                getClass().getResource("/style.css").toExternalForm()
         );
 
         stage.setTitle("Dashboard");

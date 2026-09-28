@@ -32,19 +32,11 @@ public class Register {
 
         Label appTitle =
                 new Label("OTP FLASHCARDS");
-
-        appTitle.setStyle(
-                "-fx-font-size: 26px;" +
-                "-fx-font-weight: bold;"
-        );
+        appTitle.getStyleClass().add("app-title");
 
         Label title =
                 new Label("Create Account");
-
-        title.setStyle(
-                "-fx-font-size: 22px;" +
-                "-fx-font-weight: bold;"
-        );
+        title.getStyleClass().add("page-title");
 
         Label description =
                 new Label(
@@ -208,16 +200,16 @@ public class Register {
                 Pos.CENTER
         );
 
-        root.setStyle(
-                "-fx-background-color: #f5f7fb;"
-        );
-
         Scene scene =
                 new Scene(
                         root,
                         390,
                         750
                 );
+
+        scene.getStylesheets().add(
+                getClass().getResource("/style.css").toExternalForm()
+        );
 
         stage.setTitle("Create Account");
         stage.setScene(scene);

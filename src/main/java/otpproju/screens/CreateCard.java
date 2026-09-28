@@ -53,10 +53,7 @@ public class CreateCard {
         Label title =
                 new Label("Create Flashcard");
 
-        title.setStyle(
-                "-fx-font-size: 23px;" +
-                "-fx-font-weight: bold;"
-        );
+        title.getStyleClass().add("page-title");
 
         Label description =
                 new Label(
@@ -236,16 +233,16 @@ public class CreateCard {
                 Pos.TOP_CENTER
         );
 
-        root.setStyle(
-                "-fx-background-color: #f5f7fb;"
-        );
-
         Scene scene =
                 new Scene(
                         root,
                         390,
                         750
                 );
+
+        scene.getStylesheets().add(
+                getClass().getResource("/style.css").toExternalForm()
+        );
 
         stage.setTitle("Create Card");
         stage.setScene(scene);

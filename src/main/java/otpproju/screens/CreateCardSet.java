@@ -35,10 +35,7 @@ public class CreateCardSet {
         Label title =
                 new Label("Create Flashcard Set");
 
-        title.setStyle(
-                "-fx-font-size: 23px;" +
-                "-fx-font-weight: bold;"
-        );
+        title.getStyleClass().add("page-title");
 
         Label description =
                 new Label(
@@ -160,14 +157,14 @@ public class CreateCardSet {
 
         root.setAlignment(Pos.TOP_CENTER);
 
-        root.setStyle(
-                "-fx-background-color: #f5f7fb;"
-        );
-
         Scene scene = new Scene(
                 root,
                 390,
                 750
+        );
+
+        scene.getStylesheets().add(
+                getClass().getResource("/style.css").toExternalForm()
         );
 
         stage.setTitle("Create Set");

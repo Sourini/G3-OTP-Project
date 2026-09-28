@@ -39,6 +39,8 @@ public class StudyCards {
     private Button answerButton;
     private Button nextButton;
 
+    private FlashcardSet initialSet;
+
     public StudyCards(User user) {
 
         this.user = user;
@@ -65,10 +67,8 @@ public class StudyCards {
             User user,
             FlashcardSet selectedSet
     ) {
-
         this(user);
-
-        loadCards(selectedSet);
+        this.initialSet = selectedSet;
     }
 
     public void show(Stage stage) {
@@ -76,10 +76,7 @@ public class StudyCards {
         setTitle =
                 new Label("Study Cards");
 
-        setTitle.setStyle(
-                "-fx-font-size: 23px;" +
-                "-fx-font-weight: bold;"
-        );
+        setTitle.getStyleClass().add("page-title");
 
         ComboBox<FlashcardSet> setComboBox =
                 new ComboBox<>();
@@ -125,9 +122,7 @@ public class StudyCards {
         progressText =
                 new Label("Choose a set to begin.");
 
-        progressText.setStyle(
-                "-fx-font-size: 14px;"
-        );
+        progressText.getStyleClass().add("progress-label");
 
         cardText =
                 new Label(
@@ -144,14 +139,7 @@ public class StudyCards {
 
         cardText.setMinHeight(220);
 
-        cardText.setStyle(
-                "-fx-background-color: white;" +
-                "-fx-background-radius: 20;" +
-                "-fx-border-color: #dddddd;" +
-                "-fx-border-radius: 20;" +
-                "-fx-font-size: 20px;" +
-                "-fx-padding: 30px;"
-        );
+        cardText.getStyleClass().add("flashcard");
 
         answerButton =
                 new Button("Show Answer");
@@ -243,16 +231,20 @@ public class StudyCards {
                 Pos.TOP_CENTER
         );
 
-        root.setStyle(
-                "-fx-background-color: #f5f7fb;"
-        );
-
         Scene scene =
                 new Scene(
                         root,
                         390,
                         750
                 );
+
+        scene.getStylesheets().add(
+                getClass().getResource("/style.css").toExternalForm()
+        );
+
+        if (initialSet != null) {
+            loadCards(initialSet);
+        }
 
         stage.setTitle("Study Cards");
         stage.setScene(scene);
