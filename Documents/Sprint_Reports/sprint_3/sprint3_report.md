@@ -4,6 +4,6 @@
 |   Name             | Assigned Tasks                                                           | Hours Spent | In-Class tasks |
 |----------------|--------------------------------------------------------------------------|-------------|---------------|
 |Frans Rastas| All of backend done | 20?           | done
-|Juli Javanainen | database schema and very basic database to build project on top of                                        | 5           | done
-|Tuomas Kolari | helped on database structure                                               | 3           | done
+|Juli Javanainen | assisted on er diagram, rechecked db structure                                        | 3           | done
+|Tuomas Kolari | use case diagram, er diagram                                               | 4           | done
 |Olivia Toratti | frontend work, figma                                              | 6           | done
