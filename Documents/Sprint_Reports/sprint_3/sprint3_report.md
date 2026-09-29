@@ -6,4 +6,4 @@
 |Frans Rastas| All of backend done | 20?           | done
 |Juli Javanainen | assisted on er diagram, rechecked db structure                                        | 3           | done
 |Tuomas Kolari | use case diagram, er diagram                                               | 4           | done
-|Olivia Toratti | frontend work, figma                                              | 6           | done
+|Olivia Toratti | UI, finalizing frontend                                              | 8           | done
