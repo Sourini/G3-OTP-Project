@@ -10,6 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import otpproju.model.FlashcardSet;
@@ -53,7 +55,9 @@ public class CreateCard {
         Label title =
                 new Label("Create Flashcard");
 
-        title.getStyleClass().add("page-title");
+        title.getStyleClass().add(
+                "page-title"
+        );
 
         Label description =
                 new Label(
@@ -136,10 +140,14 @@ public class CreateCard {
                     setComboBox.getValue();
 
             String question =
-                    questionField.getText().trim();
+                    questionField
+                            .getText()
+                            .trim();
 
             String answer =
-                    answerField.getText().trim();
+                    answerField
+                            .getText()
+                            .trim();
 
             if (selectedSet == null) {
 
@@ -158,14 +166,17 @@ public class CreateCard {
                 showAlert(
                         Alert.AlertType.ERROR,
                         "Missing fields",
-                        "Please enter both a question and answer."
+                        "Please enter both a question " +
+                                "and answer."
                 );
 
                 return;
             }
 
             createButton.setDisable(true);
-            createButton.setText("Creating...");
+            createButton.setText(
+                    "Creating..."
+            );
 
             try {
 
@@ -186,12 +197,16 @@ public class CreateCard {
                 answerField.clear();
 
                 createButton.setDisable(false);
-                createButton.setText("Create Card");
+                createButton.setText(
+                        "Create Card"
+                );
 
             } catch (Exception ex) {
 
                 createButton.setDisable(false);
-                createButton.setText("Create Card");
+                createButton.setText(
+                        "Create Card"
+                );
 
                 showAlert(
                         Alert.AlertType.ERROR,
@@ -205,46 +220,69 @@ public class CreateCard {
                 new UserPage(user).show(stage)
         );
 
-        VBox box = new VBox(
-                15,
-                title,
-                description,
-                setComboBox,
-                questionField,
-                answerField,
-                createButton,
-                backButton
+        // CONTENT
+
+        VBox content =
+                new VBox(
+                        15,
+                        title,
+                        description,
+                        setComboBox,
+                        questionField,
+                        answerField,
+                        createButton,
+                        backButton
+                );
+
+        content.setAlignment(
+                Pos.TOP_CENTER
         );
 
-        box.setPadding(
+        content.setPadding(
                 new Insets(30)
         );
 
-        box.setAlignment(
+        content.setMaxWidth(550);
+        content.setPrefWidth(550);
+
+        // CENTER CONTENT
+
+        StackPane centered =
+                new StackPane(content);
+
+        centered.setAlignment(
                 Pos.TOP_CENTER
         );
 
-        box.setMaxWidth(360);
+        // ROOT
 
-        VBox root =
-                new VBox(box);
+        BorderPane root =
+                new BorderPane();
 
-        root.setAlignment(
-                Pos.TOP_CENTER
+        root.setCenter(centered);
+
+        root.getStyleClass().add(
+                "dashboard-root"
         );
+
 
         Scene scene =
                 new Scene(
                         root,
-                        390,
+                        1000,
                         750
                 );
 
         scene.getStylesheets().add(
-                getClass().getResource("/style.css").toExternalForm()
+                getClass()
+                        .getResource("/style.css")
+                        .toExternalForm()
         );
 
-        stage.setTitle("Create Card");
+        stage.setTitle(
+                "Create Card"
+        );
+
         stage.setScene(scene);
         stage.show();
     }

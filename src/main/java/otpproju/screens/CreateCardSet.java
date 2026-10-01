@@ -8,6 +8,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import otpproju.model.User;
@@ -33,13 +35,18 @@ public class CreateCardSet {
     public void show(Stage stage) {
 
         Label title =
-                new Label("Create Flashcard Set");
+                new Label(
+                        "Create Flashcard Set"
+                );
 
-        title.getStyleClass().add("page-title");
+        title.getStyleClass().add(
+                "page-title"
+        );
 
         Label description =
                 new Label(
-                        "Create a set to organize your flashcards."
+                        "Create a set to organize " +
+                                "your flashcards."
                 );
 
         TextField titleField =
@@ -78,35 +85,45 @@ public class CreateCardSet {
 
         backButton.setPrefHeight(40);
 
+        // CREATE SET
+
         createButton.setOnAction(e -> {
 
             String titleText =
-                    titleField.getText().trim();
+                    titleField
+                            .getText()
+                            .trim();
 
             String descriptionText =
-                    descriptionField.getText().trim();
+                    descriptionField
+                            .getText()
+                            .trim();
 
             if (titleText.isEmpty()) {
 
                 showAlert(
                         Alert.AlertType.ERROR,
                         "Missing title",
-                        "Please enter a name for your card set."
+                        "Please enter a name for " +
+                                "your card set."
                 );
 
                 return;
             }
 
             createButton.setDisable(true);
-            createButton.setText("Creating...");
+            createButton.setText(
+                    "Creating..."
+            );
 
             try {
 
-                flashcardSetService.createFlashcardSet(
-                        user.getUserId(),
-                        titleText,
-                        descriptionText
-                );
+                flashcardSetService
+                        .createFlashcardSet(
+                                user.getUserId(),
+                                titleText,
+                                descriptionText
+                        );
 
                 showAlert(
                         Alert.AlertType.INFORMATION,
@@ -114,12 +131,15 @@ public class CreateCardSet {
                         "Your flashcard set was created."
                 );
 
-                new UserPage(user).show(stage);
+                new UserPage(user)
+                        .show(stage);
 
             } catch (Exception ex) {
 
                 createButton.setDisable(false);
-                createButton.setText("Create Set");
+                createButton.setText(
+                        "Create Set"
+                );
 
                 showAlert(
                         Alert.AlertType.ERROR,
@@ -129,45 +149,74 @@ public class CreateCardSet {
             }
         });
 
+        // BACK
+
         backButton.setOnAction(e ->
                 new UserPage(user).show(stage)
         );
 
-        VBox box = new VBox(
-                15,
-                title,
-                description,
-                titleField,
-                descriptionField,
-                createButton,
-                backButton
-        );
+        // CONTENT
 
-        box.setPadding(
-                new Insets(30)
-        );
+        VBox content =
+                new VBox(
+                        15,
+                        title,
+                        description,
+                        titleField,
+                        descriptionField,
+                        createButton,
+                        backButton
+                );
 
-        box.setAlignment(
+        content.setAlignment(
                 Pos.TOP_CENTER
         );
 
-        box.setMaxWidth(360);
-
-        VBox root = new VBox(box);
-
-        root.setAlignment(Pos.TOP_CENTER);
-
-        Scene scene = new Scene(
-                root,
-                390,
-                750
+        content.setPadding(
+                new Insets(30)
         );
+
+        content.setMaxWidth(550);
+        content.setPrefWidth(550);
+
+        // CENTER CONTENT
+
+        StackPane centered =
+                new StackPane(content);
+
+        centered.setAlignment(
+                Pos.TOP_CENTER
+        );
+
+        // ROOT
+
+        BorderPane root =
+                new BorderPane();
+
+        root.setCenter(centered);
+
+        root.getStyleClass().add(
+                "dashboard-root"
+        );
+
+
+        Scene scene =
+                new Scene(
+                        root,
+                        1000,
+                        750
+                );
 
         scene.getStylesheets().add(
-                getClass().getResource("/style.css").toExternalForm()
+                getClass()
+                        .getResource("/style.css")
+                        .toExternalForm()
         );
 
-        stage.setTitle("Create Set");
+        stage.setTitle(
+                "Create Set"
+        );
+
         stage.setScene(scene);
         stage.show();
     }

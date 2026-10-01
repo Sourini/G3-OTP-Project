@@ -30,34 +30,89 @@ public class UserPage {
 
     public void show(Stage stage) {
 
-        Label greeting = new Label(
-                "Hello, " + user.getUsername() + " 👋"
+        // TOP BAR
+
+        Label appName =
+                new Label("G3 OTP Flashcards");
+
+        appName.getStyleClass().add("app-title");
+
+        Button logoutButton =
+                new Button("Logout");
+
+        logoutButton.getStyleClass().add("logout-button");
+
+        logoutButton.setOnAction(e ->
+                new Login().show(stage)
         );
 
-        greeting.getStyleClass().add("page-title");
+        BorderPane topBar =
+                new BorderPane();
 
-        Label subtitle = new Label(
-                "Ready to study?"
+        topBar.setLeft(appName);
+        topBar.setRight(logoutButton);
+
+        topBar.setPadding(
+                new Insets(15, 20, 15, 20)
         );
 
-        VBox header = new VBox(
-                5,
-                greeting,
-                subtitle
+        topBar.getStyleClass().add("top-bar");
+
+        // HEADER
+
+        Label greeting =
+                new Label(
+                        "Hello, " +
+                                user.getUsername()
+                );
+
+        greeting.getStyleClass().add(
+                "page-title"
         );
 
-        // Create Set Card
-        VBox createSetCard = new VBox(8);
+        Label subtitle =
+                new Label(
+                        "Ready to study?"
+                );
+
+        subtitle.getStyleClass().add(
+                "subtitle"
+        );
+
+        VBox header =
+                new VBox(
+                        5,
+                        greeting,
+                        subtitle
+                );
+
+        header.setAlignment(
+                Pos.CENTER
+        );
+
+        // CREATE SET CARD
+
+        VBox createSetCard =
+                new VBox(8);
 
         Label createSetTitle =
-                new Label("Create a flashcard set");
+                new Label(
+                        "Create a flashcard set"
+                );
 
-        createSetTitle.getStyleClass().add("card-title");
+        createSetTitle.getStyleClass().add(
+                "card-title"
+        );
 
         Label createSetDescription =
                 new Label(
-                        "Organize your flashcards into a new set."
+                        "Organize your flashcards " +
+                                "into a new set."
                 );
+
+        createSetDescription.setWrapText(
+                true
+        );
 
         Button createSetButton =
                 new Button("＋ Create Set");
@@ -66,10 +121,13 @@ public class UserPage {
                 Double.MAX_VALUE
         );
 
-        createSetButton.setPrefHeight(42);
+        createSetButton.setPrefHeight(
+                42
+        );
 
         createSetButton.setOnAction(e ->
-                new CreateCardSet(user).show(stage)
+                new CreateCardSet(user)
+                        .show(stage)
         );
 
         createSetCard.getChildren().addAll(
@@ -78,32 +136,103 @@ public class UserPage {
                 createSetButton
         );
 
-        createSetCard.getStyleClass().add("dashboard-card");
+        createSetCard.getStyleClass().add(
+                "dashboard-card"
+        );
 
-        // Study Card
-        VBox studyCard = new VBox(8);
+        createSetCard.setMaxWidth(500);
+        createSetCard.setPrefWidth(500);
+
+        // CREATE CARD
+
+        VBox createCardCard =
+                new VBox(8);
+
+        Label createCardTitle =
+                new Label(
+                        "Create a flashcard"
+                );
+
+        createCardTitle.getStyleClass().add(
+                "card-title"
+        );
+
+        Label createCardDescription =
+                new Label(
+                        "Add a question and answer " +
+                                "to a card set."
+                );
+
+        createCardDescription.setWrapText(
+                true
+        );
+
+        Button createCardButton =
+                new Button("＋ Create Card");
+
+        createCardButton.setMaxWidth(
+                Double.MAX_VALUE
+        );
+
+        createCardButton.setPrefHeight(
+                42
+        );
+
+        createCardButton.setOnAction(e ->
+                new CreateCard(user)
+                        .show(stage)
+        );
+
+        createCardCard.getChildren().addAll(
+                createCardTitle,
+                createCardDescription,
+                createCardButton
+        );
+
+        createCardCard.getStyleClass().add(
+                "dashboard-card"
+        );
+
+        createCardCard.setMaxWidth(500);
+        createCardCard.setPrefWidth(500);
+
+        // STUDY CARD
+
+        VBox studyCard =
+                new VBox(8);
 
         Label studyTitle =
-                new Label("Study your cards");
+                new Label(
+                        "Study your cards"
+                );
 
-        studyTitle.getStyleClass().add("card-title");
+        studyTitle.getStyleClass().add(
+                "card-title"
+        );
 
         Label studyDescription =
                 new Label(
                         "Review your flashcard sets."
                 );
 
+        studyDescription.setWrapText(
+                true
+        );
+
         Button studyButton =
-                new Button("▶ Study Cards");
+                new Button("Study Cards");
 
         studyButton.setMaxWidth(
                 Double.MAX_VALUE
         );
 
-        studyButton.setPrefHeight(42);
+        studyButton.setPrefHeight(
+                42
+        );
 
         studyButton.setOnAction(e ->
-                new StudyCards(user).show(stage)
+                new StudyCards(user)
+                        .show(stage)
         );
 
         studyCard.getChildren().addAll(
@@ -112,75 +241,124 @@ public class UserPage {
                 studyButton
         );
 
-        studyCard.getStyleClass().add("dashboard-card");
+        studyCard.getStyleClass().add(
+                "dashboard-card"
+        );
 
-        // Recent Sets
+        studyCard.setMaxWidth(500);
+        studyCard.setPrefWidth(500);
+
+        // MY FLASHCARD SETS
+
         Label recentTitle =
-                new Label("My Flashcard Sets");
+                new Label(
+                        "My Flashcard Sets"
+                );
 
-        recentTitle.getStyleClass().add("section-title");
+        recentTitle.getStyleClass().add(
+                "section-title"
+        );
 
-        VBox setsBox = new VBox(8);
+        VBox setsBox =
+                new VBox(8);
+
+        setsBox.setMaxWidth(500);
+        setsBox.setPrefWidth(500);
 
         loadSets(setsBox);
 
-        // Logout
-        Button logoutButton =
-                new Button("Logout");
+        // DASHBOARD CONTENT
 
-        logoutButton.setMaxWidth(
-                Double.MAX_VALUE
-        );
+        VBox content =
+                new VBox(
+                        18,
+                        header,
+                        createSetCard,
+                        createCardCard,
+                        studyCard,
+                        recentTitle,
+                        setsBox
+                );
 
-        logoutButton.setPrefHeight(42);
-
-        logoutButton.setOnAction(e -> {
-            new Login().show(stage);
-        });
-
-        VBox content = new VBox(
-                18,
-                header,
-                createSetCard,
-                studyCard,
-                recentTitle,
-                setsBox,
-                logoutButton
+        content.setAlignment(
+                Pos.TOP_CENTER
         );
 
         content.setPadding(
                 new Insets(25)
         );
 
-        content.setMaxWidth(360);
+        content.setMaxWidth(550);
+        content.setPrefWidth(550);
+
+        // CENTER CONTENT
+
+        StackPane centeredContent =
+                new StackPane(content);
+
+        centeredContent.setAlignment(
+                Pos.TOP_CENTER
+        );
+
+        // SCROLL PANE
 
         ScrollPane scrollPane =
-                new ScrollPane(content);
+                new ScrollPane(
+                        centeredContent
+                );
 
-        scrollPane.setFitToWidth(true);
-
-        scrollPane.setStyle(
-                "-fx-background-color: #f5f7fb;"
+        scrollPane.setFitToWidth(
+                true
         );
 
-        VBox root = new VBox(scrollPane);
-
-        Scene scene = new Scene(
-                root,
-                390,
-                750
+        scrollPane.setFitToHeight(
+                false
         );
+
+        scrollPane.getStyleClass().add(
+                "dashboard-scroll"
+        );
+
+        // MAIN ROOT
+
+        BorderPane root =
+                new BorderPane();
+
+        root.setTop(topBar);
+        root.setCenter(scrollPane);
+
+        root.getStyleClass().add(
+                "dashboard-root"
+        );
+
+        // SCENE
+
+        Scene scene =
+                new Scene(
+                        root,
+                        1000,
+                        750
+                );
 
         scene.getStylesheets().add(
-                getClass().getResource("/style.css").toExternalForm()
+                getClass()
+                        .getResource("/style.css")
+                        .toExternalForm()
         );
 
-        stage.setTitle("Dashboard");
+        stage.setTitle(
+                "G3 OTP Flashcards"
+        );
+
         stage.setScene(scene);
         stage.show();
     }
 
-    private void loadSets(VBox setsBox) {
+    // LOAD FLASHCARD SETS
+
+    private void loadSets(
+            VBox setsBox
+    ) {
 
         try {
 
@@ -194,7 +372,8 @@ public class UserPage {
 
                 Label emptyLabel =
                         new Label(
-                                "You don't have any sets yet."
+                                "You don't have " +
+                                        "any sets yet."
                         );
 
                 setsBox.getChildren().add(
@@ -207,22 +386,30 @@ public class UserPage {
             for (FlashcardSet set : sets) {
 
                 Button setButton =
-                        new Button(set.getTitle());
+                        new Button(
+                                set.getTitle()
+                        );
 
                 setButton.setMaxWidth(
                         Double.MAX_VALUE
                 );
 
-                setButton.setPrefHeight(45);
-
-                setButton.setOnAction(e ->
-                        new StudyCards(user, set)
-                                .show(
-                                        (Stage) setButton
-                                                .getScene()
-                                                .getWindow()
-                                )
+                setButton.setPrefHeight(
+                        45
                 );
+
+                setButton.setOnAction(e -> {
+
+                    Stage currentStage =
+                            (Stage) setButton
+                                    .getScene()
+                                    .getWindow();
+
+                    new StudyCards(
+                            user,
+                            set
+                    ).show(currentStage);
+                });
 
                 setsBox.getChildren().add(
                         setButton
@@ -233,10 +420,13 @@ public class UserPage {
 
             Label error =
                     new Label(
-                            "Could not load flashcard sets."
+                            "Could not load " +
+                                    "flashcard sets."
                     );
 
-            setsBox.getChildren().add(error);
+            setsBox.getChildren().add(
+                    error
+            );
         }
     }
 }
