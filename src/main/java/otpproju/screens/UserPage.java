@@ -33,7 +33,7 @@ public class UserPage {
         // TOP BAR
 
         Label appName =
-                new Label("G3 OTP Flashcards");
+                new Label("Simply Flashcards");
 
         appName.getStyleClass().add("app-title");
 
@@ -347,7 +347,7 @@ public class UserPage {
         );
 
         stage.setTitle(
-                "G3 OTP Flashcards"
+                "Simply Flashcards"
         );
 
         stage.setScene(scene);
