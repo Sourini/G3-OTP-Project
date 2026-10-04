@@ -31,7 +31,7 @@ public class Register {
     public void show(Stage stage) {
 
         Label appTitle =
-                new Label("Simply Flashcards");
+                new Label("Simply Flashcard");
         appTitle.getStyleClass().add("app-title");
 
         Label title =

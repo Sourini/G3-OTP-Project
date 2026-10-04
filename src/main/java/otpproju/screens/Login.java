@@ -20,7 +20,7 @@ public class Login {
 
     public void show(Stage stage) {
 
-        Label appTitle = new Label("Simply Flashcards");
+        Label appTitle = new Label("Simply Flashcard");
         appTitle.getStyleClass().add("app-title");
 
         Label title = new Label("Welcome back");
@@ -125,7 +125,7 @@ public class Login {
                 getClass().getResource("/style.css").toExternalForm()
         );
 
-        stage.setTitle("Simply Flashcards");
+        stage.setTitle("Simply Flashcard");
         stage.setScene(scene);
         stage.show();
     }

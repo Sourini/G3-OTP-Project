@@ -33,7 +33,7 @@ public class UserPage {
         // TOP BAR
 
         Label appName =
-                new Label("Simply Flashcards");
+                new Label("Simply Flashcard");
 
         appName.getStyleClass().add("app-title");
 
@@ -347,7 +347,7 @@ public class UserPage {
         );
 
         stage.setTitle(
-                "Simply Flashcards"
+                "Simply Flashcard"
         );
 
         stage.setScene(scene);
