@@ -10,6 +10,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import otpproju.model.Flashcard;
@@ -76,7 +78,9 @@ public class StudyCards {
         setTitle =
                 new Label("Study Cards");
 
-        setTitle.getStyleClass().add("page-title");
+        setTitle.getStyleClass().add(
+                "page-title"
+        );
 
         ComboBox<FlashcardSet> setComboBox =
                 new ComboBox<>();
@@ -88,6 +92,8 @@ public class StudyCards {
         setComboBox.setMaxWidth(
                 Double.MAX_VALUE
         );
+
+        setComboBox.setPrefHeight(45);
 
         try {
 
@@ -110,8 +116,11 @@ public class StudyCards {
             );
         }
 
+
         Button loadButton =
-                new Button("Start Studying");
+                new Button(
+                        "Start Studying"
+                );
 
         loadButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -119,49 +128,79 @@ public class StudyCards {
 
         loadButton.setPrefHeight(42);
 
-        progressText =
-                new Label("Choose a set to begin.");
 
-        progressText.getStyleClass().add("progress-label");
+        progressText =
+                new Label(
+                        "Choose a set to begin."
+                );
+
+        progressText.getStyleClass().add(
+                "progress-label"
+        );
+
 
         cardText =
                 new Label(
-                        "Your flashcard will appear here."
+                        "Your flashcard will " +
+                                "appear here."
                 );
 
-        cardText.setWrapText(true);
+        cardText.setWrapText(
+                true
+        );
 
         cardText.setAlignment(
                 Pos.CENTER
         );
 
-        cardText.setMaxWidth(310);
+        cardText.setMaxWidth(
+                450
+        );
 
-        cardText.setMinHeight(220);
+        cardText.setMinHeight(
+                220
+        );
 
-        cardText.getStyleClass().add("flashcard");
+        cardText.getStyleClass().add(
+                "flashcard"
+        );
+
 
         answerButton =
-                new Button("Show Answer");
+                new Button(
+                        "Show Answer"
+                );
 
         answerButton.setMaxWidth(
                 Double.MAX_VALUE
         );
 
-        answerButton.setPrefHeight(45);
+        answerButton.setPrefHeight(
+                45
+        );
 
-        answerButton.setDisable(true);
+        answerButton.setDisable(
+                true
+        );
+
 
         nextButton =
-                new Button("Next Card");
+                new Button(
+                        "Next Card"
+                );
 
         nextButton.setMaxWidth(
                 Double.MAX_VALUE
         );
 
-        nextButton.setPrefHeight(45);
+        nextButton.setPrefHeight(
+                45
+        );
 
-        nextButton.setDisable(true);
+        nextButton.setDisable(
+                true
+        );
+
 
         Button backButton =
                 new Button("Back");
@@ -169,6 +208,12 @@ public class StudyCards {
         backButton.setMaxWidth(
                 Double.MAX_VALUE
         );
+
+        backButton.setPrefHeight(
+                40
+        );
+
+        // BUTTON ACTIONS
 
         loadButton.setOnAction(e -> {
 
@@ -189,17 +234,23 @@ public class StudyCards {
             loadCards(selected);
         });
 
+
         answerButton.setOnAction(e ->
                 showAnswer()
         );
+
 
         nextButton.setOnAction(e ->
                 showNextCard()
         );
 
+
         backButton.setOnAction(e ->
-                new UserPage(user).show(stage)
+                new UserPage(user)
+                        .show(stage)
         );
+
+        // CONTENT
 
         VBox content =
                 new VBox(
@@ -219,37 +270,61 @@ public class StudyCards {
         );
 
         content.setPadding(
-                new Insets(25)
+                new Insets(30)
         );
 
-        content.setMaxWidth(360);
+        content.setMaxWidth(600);
+        content.setPrefWidth(600);
 
-        VBox root =
-                new VBox(content);
+        // CENTER CONTENT
 
-        root.setAlignment(
+        StackPane centered =
+                new StackPane(content);
+
+        centered.setAlignment(
                 Pos.TOP_CENTER
         );
+
+        // ROOT
+
+        BorderPane root =
+                new BorderPane();
+
+        root.setCenter(centered);
+
+        root.getStyleClass().add(
+                "dashboard-root"
+        );
+
 
         Scene scene =
                 new Scene(
                         root,
-                        390,
+                        1000,
                         750
                 );
 
         scene.getStylesheets().add(
-                getClass().getResource("/style.css").toExternalForm()
+                getClass()
+                        .getResource("/style.css")
+                        .toExternalForm()
         );
+
 
         if (initialSet != null) {
             loadCards(initialSet);
         }
 
-        stage.setTitle("Study Cards");
+
+        stage.setTitle(
+                "Study Cards"
+        );
+
         stage.setScene(scene);
         stage.show();
     }
+
+    // LOAD CARDS
 
     private void loadCards(
             FlashcardSet selectedSet
@@ -260,9 +335,10 @@ public class StudyCards {
             cards.clear();
 
             cards.addAll(
-                    flashcardService.getFlashcardsForSet(
-                            selectedSet.getSetId()
-                    )
+                    flashcardService
+                            .getFlashcardsForSet(
+                                    selectedSet.getSetId()
+                            )
             );
 
             currentCardIndex = 0;
@@ -274,15 +350,21 @@ public class StudyCards {
             if (cards.isEmpty()) {
 
                 cardText.setText(
-                        "This set does not have any cards yet."
+                        "This set does not have " +
+                                "any cards yet."
                 );
 
                 progressText.setText(
                         "0 cards"
                 );
 
-                answerButton.setDisable(true);
-                nextButton.setDisable(true);
+                answerButton.setDisable(
+                        true
+                );
+
+                nextButton.setDisable(
+                        true
+                );
 
                 return;
             }
@@ -299,6 +381,8 @@ public class StudyCards {
         }
     }
 
+    // CURRENT CARD
+
     private void showCurrentCard() {
 
         if (cards.isEmpty()) {
@@ -314,19 +398,25 @@ public class StudyCards {
 
         progressText.setText(
                 "Card " +
-                (currentCardIndex + 1) +
-                " of " +
-                cards.size()
+                        (currentCardIndex + 1) +
+                        " of " +
+                        cards.size()
         );
 
         answerButton.setText(
                 "Show Answer"
         );
 
-        answerButton.setDisable(false);
+        answerButton.setDisable(
+                false
+        );
 
-        nextButton.setDisable(true);
+        nextButton.setDisable(
+                true
+        );
     }
+
+    // SHOW ANSWER
 
     private void showAnswer() {
 
@@ -341,9 +431,16 @@ public class StudyCards {
                 currentCard.getAnswer()
         );
 
-        answerButton.setDisable(true);
-        nextButton.setDisable(false);
+        answerButton.setDisable(
+                true
+        );
+
+        nextButton.setDisable(
+                false
+        );
     }
+
+    // NEXT CARD
 
     private void showNextCard() {
 
@@ -362,18 +459,25 @@ public class StudyCards {
 
             progressText.setText(
                     "Finished " +
-                    cards.size() +
-                    " cards!"
+                            cards.size() +
+                            " cards!"
             );
 
             cardText.setText(
-                    "Great job! 🎉"
+                    "Great job!"
             );
 
-            answerButton.setDisable(true);
-            nextButton.setDisable(true);
+            answerButton.setDisable(
+                    true
+            );
+
+            nextButton.setDisable(
+                    true
+            );
         }
     }
+
+    // ALERT
 
     private void showAlert(
             Alert.AlertType type,

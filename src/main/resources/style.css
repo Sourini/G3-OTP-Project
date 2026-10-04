@@ -3,11 +3,51 @@
     -fx-font-family: "Segoe UI";
 }
 
-/* main title */
+/* TOP BAR */
+
+.top-bar {
+    -fx-background-color: white;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 1 0;
+}
+
 .app-title {
-    -fx-font-size: 26px;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
     -fx-text-fill: #1f2937;
+}
+
+.logout-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #374151;
+    -fx-font-weight: bold;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 8px 14px;
+}
+
+.logout-button:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+/* DASHBOARD */
+
+.dashboard-root {
+    -fx-background-color: #f5f7fb;
+}
+
+.dashboard-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.dashboard-scroll .viewport {
+    -fx-background-color: #f5f7fb;
+}
+
+.dashboard-scroll .content {
+    -fx-background-color: #f5f7fb;
 }
 
 .page-title {
@@ -16,20 +56,37 @@
     -fx-text-fill: #1f2937;
 }
 
+.subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: #6b7280;
+}
+
 .section-title {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
     -fx-text-fill: #1f2937;
 }
 
+/* CARDS */
+
+.dashboard-card {
+    -fx-background-color: white;
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+    -fx-border-color: #e5e7eb;
+    -fx-padding: 18px;
+}
+
 .card-title {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
 }
 
-/* text field */
+/* TEXT FIELDS */
+
 .text-field,
-.password.field,
+.password-field,
 .combo-box {
     -fx-pref-height: 45px;
     -fx-background-radius: 10px;
@@ -42,9 +99,11 @@
     -fx-background-radius: 10px;
     -fx-border-radius: 10px;
     -fx-border-color: #d1d5db;
+    -fx-background-color: white;
 }
 
-/* buttons */
+/* BUTTONS */
+
 .button {
     -fx-background-color: #2563eb;
     -fx-text-fill: white;
@@ -57,27 +116,21 @@
     -fx-background-color: #1d4ed8;
 }
 
+/* LINKS */
+
 .hyperlink {
     -fx-text-fill: #2563eb;
 }
 
-/* dashboard card */
-.dashboard-card {
-    -fx-background-color: white;
-    -fx-background-radius: 15;
-    -fx-border-radius: 15;
-    -fx-border-color: #dddddd;
-    -fx-padding: 18;
-}
+/* FLASHCARD */
 
-/* flashcard display */
 .flashcard {
     -fx-background-color: #2563eb;
-    -fx-background-radius: 20;
-    -fx-border-radius: 20;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
     -fx-border-color: #1d4ed8;
     -fx-font-size: 20px;
-    -fx-padding: 30;
+    -fx-padding: 30px;
 }
 
 .progress-label {
