@@ -11,6 +11,10 @@ pipeline {
         DB_PASSWORD = "${DB_ACCOUNT_PSW}"
     }
 
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -40,6 +44,15 @@ pipeline {
         stage('Publish Coverage Report') {
             steps {
                 jacoco()
+
+                publishHTML(target: [
+                    reportDir: 'target/site/jacoco',
+                    reportFiles: 'index.html',
+                    reportName: 'JaCoCo HTML Report',
+                    keepAll: true,
+                    alwaysLinkToLastBuild: true,
+                    allowMissing: false
+                ])
             }
         }
     }
