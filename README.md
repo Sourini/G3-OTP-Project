@@ -187,6 +187,6 @@ The tests cover important functionalities:
 #### Team members:
 
 - Frans Rastas - Backend dev, Testing, Maven, Jenkins, Docker, Documentation, Troubleshooting
-- Juli Javanainen -
+- Juli Javanainen - Database creation and development, SQL query writing, DB schema and ER design
 - Tuomas Kolari -
 - Olivia Toratti - Frontend Development, JavaFX GUI Development, UI Design, Application Testing
