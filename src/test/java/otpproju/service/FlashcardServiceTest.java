@@ -424,4 +424,31 @@ class FlashcardServiceTest {
                 )
         );
     }
+
+    @Test
+    void rejectedUpdateLeavesStoredCardUnchanged() {
+        Flashcard created = service.createFlashcard(
+                testUserId,
+                testSetId,
+                "Original question",
+                "Original answer"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateFlashcard(
+                        testUserId,
+                        created.getCardId(),
+                        "New question",
+                        "   "
+                )
+        );
+
+        Flashcard stored = service.getFlashcard(
+                created.getCardId()
+        );
+
+        assertEquals("Original question", stored.getQuestion());
+        assertEquals("Original answer", stored.getAnswer());
+    }
 }
