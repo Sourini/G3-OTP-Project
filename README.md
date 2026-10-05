@@ -98,29 +98,53 @@ The application will use a JavaFX desktop interface and a MariaDB database to pr
 
 ### 3. Running the Project
 
-#### Prerequisites
+#### Prerequisites for running locallly
 
-- Java JDK 17+
+- Java JDK 21+
 - Maven
-- MariaDB / HeidiSQL
-- IntelliJ IDEA
+- MariaDB
 
 #### Run Locally
 
 1. Clone the repository.
 2. Set up the MariaDB database using the provided database script.
-3. Configure the database connection in the project.
-4. Open the project in IntelliJ IDEA and build the project using Maven: `mvn clean install`
+3. Configure the database connection in the project. Rename the provided .env.example file and edit your mariadb credentials in it.
+4. Open the project root in console and build the project using Maven: `mvn clean install`
 5. Run the JavaFX application: `mvn javafx:run`
 6. The application will launch and can be used through the JavaFX interface.
 
 ---
 
+
+#### Additional prerequisites for running the up to date docker image
+
+- Docker
+- Xming
+
+#### Running the docker image
+
+1. Clone the repository
+2. Open the project root in console
+3. run the following commands:
+```
+docker compose --env-file .env.docker down
+docker compose --env-file .env.docker pull app
+docker compose --env-file .env.docker up -d --no-build
+docker compose --env-file .env.docker ps
+```
+---
 ### 4. Testing Instructions
 
 Testing is done using JUnit and Maven.
+The project is designed to be run with Jenkins for automated tests and docker image builds.
 
-#### Run Tests
+#### Additional steps to setup Jenkins
+
+- maven is called using the name `maven3`
+- mariadb credentials should be saved under ID `flashcard-db`
+- dockerhub credentials should be saved under ID `dockerhub`
+- Required plugins: `HTML Publisher plugin`
+#### Run tests locally
 
 From the project root directory, run: `mvn test`. This runs the available unit tests for the application.
 
@@ -144,11 +168,11 @@ The tests cover important functionalities:
 
 #### Directories
 
-- /model - Data models such as users, flashcards, and flashcard sets
-- /repository - Database operations and repository classes
-- /screens - JavaFX user interface screens
-- /service - Business logic and services
-- /test - Test cases
+- /src/main/java/otpproju/model - Data models such as users, flashcards, and flashcard sets
+- /src/main/java/otpproju/repository - Database operations and repository classes
+- /src/main/java/otpproju/screens - JavaFX user interface screens
+- /src/main/java/otpproju/service - Business logic and services
+- /src/test - Test cases
 - /Documents - Project documentation
 - /Diagrams - UML diagrams
 
@@ -158,7 +182,7 @@ The tests cover important functionalities:
 
 #### Team members:
 
-- Frans Rastas -
+- Frans Rastas - Backend dev, Testing, Maven, Jenkins, Docker, Documentation, Troubleshooting
 - Juli Javanainen -
 - Tuomas Kolari -
 - Olivia Toratti - Frontend Development, JavaFX GUI Development, UI Design, Application Testing
