@@ -9,6 +9,7 @@ pipeline {
         DB_ACCOUNT = credentials('flashcard-db')
         DB_USER = "${DB_ACCOUNT_USR}"
         DB_PASSWORD = "${DB_ACCOUNT_PSW}"
+        DOCKERHUB_REPO = 'sourini/g3-flashcard-app'
     }
 
     triggers {
@@ -53,6 +54,31 @@ pipeline {
                     alwaysLinkToLastBuild: true,
                     allowMissing: false
                 ])
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${env.DOCKERHUB_REPO}:${env.BUILD_NUMBER}")
+                }
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry(
+                        'https://index.docker.io/v1/',
+                        'dockerhub'
+                    ) {
+                        def image = docker.image(
+                            "${env.DOCKERHUB_REPO}:${env.BUILD_NUMBER}"
+                        )
+
+                        image.push()
+                        image.push('latest')
+                    }
+                }
             }
         }
     }
