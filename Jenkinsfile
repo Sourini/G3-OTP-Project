@@ -5,8 +5,8 @@ pipeline {
     }
 
     environment {
-        DB_URL = 'jdbc:mariadb://127.0.0.1:3306/flashcard_app_test'
-        DB_ACCOUNT = credentials('flashcard-test-db')
+        DB_URL = 'jdbc:mariadb://127.0.0.1:3306/flashcard_app'
+        DB_ACCOUNT = credentials('flashcard-db')
         DB_USER = "${DB_ACCOUNT_USR}"
         DB_PASSWORD = "${DB_ACCOUNT_PSW}"
     }
