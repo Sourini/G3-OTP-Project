@@ -321,4 +321,33 @@ class FlashcardSetServiceTest {
                 service.getFlashcardSet(created.getSetId())
         );
     }
+
+    @Test
+    void rejectedUpdateLeavesStoredSetUnchanged() {
+        FlashcardSet created = service.createFlashcardSet(
+                testUserId,
+                "Original title",
+                "Original description"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.updateFlashcardSet(
+                        testUserId,
+                        created.getSetId(),
+                        "a".repeat(101),
+                        "New description"
+                )
+        );
+
+        FlashcardSet stored = service.getFlashcardSet(
+                created.getSetId()
+        );
+
+        assertEquals("Original title", stored.getTitle());
+        assertEquals(
+                "Original description",
+                stored.getDescription()
+        );
+    }
 }

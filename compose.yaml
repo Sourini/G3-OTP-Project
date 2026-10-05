@@ -1,0 +1,32 @@
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: flashcard_app
+      MARIADB_USER: flashcard
+      MARIADB_PASSWORD: ${DOCKER_DB_PASSWORD:?Set DOCKER_DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DOCKER_DB_ROOT_PASSWORD:?Set DOCKER_DB_ROOT_PASSWORD}
+    volumes:
+      - flashcard_data:/var/lib/mysql
+      - ./src/main/java/otpproju/flashcard_app_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  app:
+    build: .
+    image: sourini/g3-flashcard-app:1.0
+    environment:
+      DISPLAY: host.docker.internal:0.0
+      DB_URL: jdbc:mariadb://db:3306/flashcard_app
+      DB_USER: flashcard
+      DB_PASSWORD: ${DOCKER_DB_PASSWORD:?Set DOCKER_DB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  flashcard_data:
