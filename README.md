@@ -187,5 +187,5 @@ The tests cover important functionalities:
 
 - Frans Rastas - Backend dev, Testing, Maven, Jenkins, Docker, Documentation, Troubleshooting
 - Juli Javanainen - Database creation and development, SQL query writing, DB schema and ER design, Jenkinsfile
-- Tuomas Kolari - Database development, Docker, Diagrams
+- Tuomas Kolari - Database development, Document creation and updation, Docker, Diagrams
 - Olivia Toratti - Frontend Development, JavaFX GUI Development, UI Design, Application Testing
