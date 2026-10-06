@@ -131,7 +131,6 @@ The application will use a JavaFX desktop interface and a MariaDB database to pr
 ```
 docker compose pull app
 docker compose up -d --no-build
-docker compose ps
 ```
 5. To stop, run
 `docker compose down`
