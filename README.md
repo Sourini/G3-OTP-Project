@@ -107,8 +107,8 @@ The application will use a JavaFX desktop interface and a MariaDB database to pr
 #### Run Locally
 
 1. Clone the repository.
-2. Set up the MariaDB database using the provided database script.
-3. Configure the database connection in the project. Rename the provided .env.example file and edit your mariadb credentials in it.
+2. Set up the MariaDB database using the provided database script located in `src/main/java/otpproju/flashcard_app_schema.sql`.
+3. Configure the database connection in the project. Rename the provided .env.example to .env and edit your mariadb credentials in it.
 4. Open the project root in console and build the project using Maven: `mvn clean install`
 5. Run the JavaFX application: `mvn javafx:run`
 6. The application will launch and can be used through the JavaFX interface.
@@ -120,22 +120,25 @@ The application will use a JavaFX desktop interface and a MariaDB database to pr
 
 - Docker
 - Xming
+- Local Java and MariaDB installations are only needed for running outside Docker.
 
 #### Running the docker image
 
 1. Clone the repository
-2. Open the project root in console
-3. run the following commands:
+2. Rename the provided .env.example file to .env and edit your with your credentials
+3. Open the project root in console
+4. run the following commands:
 ```
-docker compose --env-file .env.docker down
-docker compose --env-file .env.docker pull app
-docker compose --env-file .env.docker up -d --no-build
-docker compose --env-file .env.docker ps
+docker compose pull app
+docker compose up -d --no-build
+docker compose ps
 ```
+5. To stop, run
+`docker compose down`
 ---
 ### 4. Testing Instructions
 
-Testing is done using JUnit and Maven.
+Testing is done using JUnit and Maven, but also require MariaDB for database integration.
 The project is designed to be run with Jenkins for automated tests and docker image builds.
 
 #### Additional steps to setup Jenkins
@@ -143,7 +146,8 @@ The project is designed to be run with Jenkins for automated tests and docker im
 - maven is called using the name `maven3`
 - mariadb credentials should be saved under ID `flashcard-db`
 - dockerhub credentials should be saved under ID `dockerhub`
-- Required plugins: `HTML Publisher plugin`
+- Required plugins: `HTML Publisher plugin`, `Docker Pipeline`, `Jacoco`
+- Jenkins polls the repo every 5 minutes for updates.
 #### Run tests locally
 
 From the project root directory, run: `mvn test`. This runs the available unit tests for the application.
@@ -183,6 +187,6 @@ The tests cover important functionalities:
 #### Team members:
 
 - Frans Rastas - Backend dev, Testing, Maven, Jenkins, Docker, Documentation, Troubleshooting
-- Juli Javanainen -
-- Tuomas Kolari -
+- Juli Javanainen - Database creation and development, SQL query writing, DB schema and ER design
+- Tuomas Kolari - Database development, Docker, Diagrams
 - Olivia Toratti - Frontend Development, JavaFX GUI Development, UI Design, Application Testing
