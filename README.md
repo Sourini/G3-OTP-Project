@@ -98,7 +98,7 @@ The application will use a JavaFX desktop interface and a MariaDB database to pr
 
 ### 3. Running the Project
 
-#### Prerequisites for running locallly
+#### Prerequisites for running locally
 
 - Java JDK 21+
 - Maven
@@ -125,7 +125,7 @@ The application will use a JavaFX desktop interface and a MariaDB database to pr
 #### Running the docker image
 
 1. Clone the repository
-2. Rename the provided .env.example file to .env and edit your with your credentials
+2. Rename the provided .env.example file to .env and edit with your credentials
 3. Open the project root in console
 4. run the following commands:
 ```
