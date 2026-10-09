@@ -90,26 +90,72 @@ The application will use a JavaFX desktop interface and a MariaDB database to pr
 
 ## 3. Design & Development Methodology
 
-<!-- TODO: add architecture description, UML diagrams, ER diagram and development process here -->
 
-### Project structure
+### Architecture
 
-#### Directories
+The application's architecture is layered like this:
 
-- /src/main/java/otpproju/model - Data models such as users, flashcards, and flashcard sets
-- /src/main/java/otpproju/repository - Database operations and repository classes
-- /src/main/java/otpproju/screens - JavaFX user interface screens
-- /src/main/java/otpproju/service - Business logic and services
-- /src/test - Test cases
-- /Documents - Project documentation
-- /Diagrams - UML diagrams
+1. **Screens:** JavaFX based User Interface for the application.
+2. **Services:** implement rules, validation, authentication, and ownership checks.
+3. **Repositories:** execute database operations through JDBC.
+4. **Models:** represent models for users, flashcard sets, and flashcards.
+5. **Configuration:** provides database connections and shared application services.
 
+The main interaction flow:
+
+JavaFX screen → service → repository → MariaDB
+
+### Database Design
+
+The database contains three main tables:
+
+- `users`: account details, account types and password hashes.
+- `flashcard_sets`: flashcard sets and their data associated with their owners.
+- `flashcards`: questions and answers associated with sets.
+
+A user can own multiple sets, and each set can contain multiple cards. Cascading deletion removes dependent records when their parent is deleted.
+
+The database schema is defined in:
+
+`src/main/java/otpproju/flashcard_app_schema.sql`
+
+### Design Diagrams
+
+- [Entity-relationship diagram](Diagrams/er.png)
+![er diagram image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/er.png?raw=true)
+- [Database schema diagram](Diagrams/dbschema.png)
+![db schema image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/dbschema.png?raw=true)
+- [Use-case diagram](Diagrams/usecase.png)
+![usecase image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/usecase.png?raw=true)
+
+### Development Process
+
+The team uses Scrum for working on the project. We used Trello to track the product backlog, priorities, and sprint tasks.
+
+GitHub is used for source control and sharing documentation. Jenkins checks the repo for changes and runs automated verification and docker image creation.
+
+
+### Project Structure
+
+| Directory | Purpose |
+|---|---|
+| `src/main/java/otpproju/config` | Database configuration and shared services |
+| `src/main/java/otpproju/model` | Domain models |
+| `src/main/java/otpproju/repository` | Database operations |
+| `src/main/java/otpproju/screens` | JavaFX interface |
+| `src/main/java/otpproju/service` | Business logic |
+| `src/main/resources` | Application resources, including styling |
+| `src/test/java/otpproju` | Automated tests |
+| `Documents` | Project documentation and sprint reports |
+| `Diagrams` | Design diagrams |
 ---
 
 ## 4. Functional Testing
 
-Testing is done using JUnit and Maven, but also require MariaDB for database integration.
+Testing is done using JUnit and Jacoco through Maven, but also require MariaDB for database integration.
 The project is designed to be run with Jenkins for automated tests and docker image builds.
+The project also automatically runs tests on github pages each time a new push arrives to main.
+[Link to github pages code coverage report](https://sourini.github.io/G3-OTP-Project/)
 
 ### Additional steps to setup Jenkins
 
