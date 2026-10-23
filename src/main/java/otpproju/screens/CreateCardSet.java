@@ -16,6 +16,8 @@ import otpproju.model.User;
 import otpproju.repository.FlashcardSetRepository;
 import otpproju.service.FlashcardSetService;
 
+import otpproju.config.I18n;
+
 public class CreateCardSet {
 
     private final User user;
@@ -36,7 +38,7 @@ public class CreateCardSet {
 
         Label title =
                 new Label(
-                        "Create Flashcard Set"
+                        I18n.t("createCardSet.title")
                 );
 
         title.getStyleClass().add(
@@ -45,15 +47,14 @@ public class CreateCardSet {
 
         Label description =
                 new Label(
-                        "Create a set to organize " +
-                                "your flashcards."
+                        I18n.t("createCardSet.desc")
                 );
 
         TextField titleField =
                 new TextField();
 
         titleField.setPromptText(
-                "Set name"
+                I18n.t("createCardSet.setName")
         );
 
         titleField.setPrefHeight(45);
@@ -62,13 +63,13 @@ public class CreateCardSet {
                 new TextArea();
 
         descriptionField.setPromptText(
-                "Description (optional)"
+                I18n.t("createCardSet.setDesc")
         );
 
         descriptionField.setPrefRowCount(4);
 
         Button createButton =
-                new Button("Create Set");
+                new Button(I18n.t("createCardSet.createButton"));
 
         createButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -77,7 +78,7 @@ public class CreateCardSet {
         createButton.setPrefHeight(45);
 
         Button backButton =
-                new Button("Back");
+                new Button(I18n.t("createCardSet.backButton"));
 
         backButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -103,9 +104,8 @@ public class CreateCardSet {
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Missing title",
-                        "Please enter a name for " +
-                                "your card set."
+                        I18n.t("createCardSet.emptyTitle.title"),
+                        I18n.t("createCardSet.emptyTitle.message")
                 );
 
                 return;
@@ -113,7 +113,7 @@ public class CreateCardSet {
 
             createButton.setDisable(true);
             createButton.setText(
-                    "Creating..."
+                    I18n.t("createCardSet.creating")
             );
 
             try {
@@ -127,8 +127,8 @@ public class CreateCardSet {
 
                 showAlert(
                         Alert.AlertType.INFORMATION,
-                        "Success",
-                        "Your flashcard set was created."
+                        I18n.t("createCardSet.created.title"),
+                        I18n.t("createCardSet.created.message")
                 );
 
                 new UserPage(user)
@@ -138,12 +138,12 @@ public class CreateCardSet {
 
                 createButton.setDisable(false);
                 createButton.setText(
-                        "Create Set"
+                        I18n.t("createCardSet.createButton")
                 );
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Could not create set",
+                        I18n.t("createCardSet.createError"),
                         ex.getMessage()
                 );
             }
@@ -214,7 +214,8 @@ public class CreateCardSet {
         );
 
         stage.setTitle(
-                "Create Set"
+                I18n.t("createCardSet.title")
+
         );
 
         stage.setScene(scene);

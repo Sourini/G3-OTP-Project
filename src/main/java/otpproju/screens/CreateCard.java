@@ -21,6 +21,9 @@ import otpproju.repository.FlashcardSetRepository;
 import otpproju.service.FlashcardService;
 import otpproju.service.FlashcardSetService;
 
+import otpproju.config.I18n;
+
+
 public class CreateCard {
 
     private final User user;
@@ -53,22 +56,21 @@ public class CreateCard {
     public void show(Stage stage) {
 
         Label title =
-                new Label("Create Flashcard");
+                new Label(I18n.t("createCard.title"));
 
         title.getStyleClass().add(
                 "page-title"
         );
 
         Label description =
-                new Label(
-                        "Add a question and answer to a set."
+                new Label(I18n.t("createCard.desc")
                 );
 
         ComboBox<FlashcardSet> setComboBox =
                 new ComboBox<>();
 
         setComboBox.setPromptText(
-                "Choose a flashcard set"
+                I18n.t("createCard.chooseSet")
         );
 
         setComboBox.setMaxWidth(
@@ -93,7 +95,7 @@ public class CreateCard {
 
             showAlert(
                     Alert.AlertType.ERROR,
-                    "Could not load sets",
+                    I18n.t("createCard.exceptionError"),
                     ex.getMessage()
             );
         }
@@ -102,7 +104,7 @@ public class CreateCard {
                 new TextArea();
 
         questionField.setPromptText(
-                "Question"
+                I18n.t("createCard.questionField")
         );
 
         questionField.setPrefRowCount(4);
@@ -111,13 +113,13 @@ public class CreateCard {
                 new TextArea();
 
         answerField.setPromptText(
-                "Answer"
+                I18n.t("createCard.answerField")
         );
 
         answerField.setPrefRowCount(4);
 
         Button createButton =
-                new Button("Create Card");
+                new Button(I18n.t("createCard.createButton"));
 
         createButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -126,7 +128,7 @@ public class CreateCard {
         createButton.setPrefHeight(45);
 
         Button backButton =
-                new Button("Back");
+                new Button(I18n.t("createCard.backButton"));
 
         backButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -153,8 +155,8 @@ public class CreateCard {
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "No set selected",
-                        "Please choose a flashcard set."
+                        I18n.t("createCard.setSelectError.title"),
+                        I18n.t("createCard.setSelectError.message")
                 );
 
                 return;
@@ -165,9 +167,8 @@ public class CreateCard {
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Missing fields",
-                        "Please enter both a question " +
-                                "and answer."
+                        I18n.t("createCard.setEmptyField.title"),
+                        I18n.t("createCard.setEmptyField.message")
                 );
 
                 return;
@@ -175,7 +176,7 @@ public class CreateCard {
 
             createButton.setDisable(true);
             createButton.setText(
-                    "Creating..."
+                    I18n.t("createCard.creating")
             );
 
             try {
@@ -189,8 +190,8 @@ public class CreateCard {
 
                 showAlert(
                         Alert.AlertType.INFORMATION,
-                        "Success",
-                        "Your flashcard was created."
+                        I18n.t("createCard.created.title"),
+                        I18n.t("createCard.created.message")
                 );
 
                 questionField.clear();
@@ -198,19 +199,19 @@ public class CreateCard {
 
                 createButton.setDisable(false);
                 createButton.setText(
-                        "Create Card"
+                        I18n.t("createCard.createButton")
                 );
 
             } catch (Exception ex) {
 
                 createButton.setDisable(false);
                 createButton.setText(
-                        "Create Card"
+                        I18n.t("createCard.exception")
                 );
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Could not create card",
+                        I18n.t("createCard.createButton.error"),
                         ex.getMessage()
                 );
             }
@@ -280,7 +281,8 @@ public class CreateCard {
         );
 
         stage.setTitle(
-                "Create Card"
+                I18n.t("createCard.title")
+
         );
 
         stage.setScene(scene);

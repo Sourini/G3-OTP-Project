@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import otpproju.model.User;
 import otpproju.repository.UserRepository;
 import otpproju.service.UserService;
+import otpproju.config.I18n;
 
 public class Register {
 
@@ -31,23 +32,23 @@ public class Register {
     public void show(Stage stage) {
 
         Label appTitle =
-                new Label("Simply Flashcard");
+                new Label(I18n.t("app.title"));
         appTitle.getStyleClass().add("app-title");
 
         Label title =
-                new Label("Create Account");
+                new Label(I18n.t("register.title"));
         title.getStyleClass().add("page-title");
 
         Label description =
                 new Label(
-                        "Create an account to start studying."
+                        I18n.t("register.desc")
                 );
 
         TextField usernameField =
                 new TextField();
 
         usernameField.setPromptText(
-                "Username"
+                I18n.t("register.username")
         );
 
         usernameField.setPrefHeight(45);
@@ -56,7 +57,7 @@ public class Register {
                 new TextField();
 
         emailField.setPromptText(
-                "Email"
+                I18n.t("register.email")
         );
 
         emailField.setPrefHeight(45);
@@ -65,13 +66,13 @@ public class Register {
                 new PasswordField();
 
         passwordField.setPromptText(
-                "Password"
+                I18n.t("register.password")
         );
 
         passwordField.setPrefHeight(45);
 
         Button registerButton =
-                new Button("Create Account");
+                new Button(I18n.t("register.createButton"));
 
         registerButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -81,11 +82,11 @@ public class Register {
 
         Label loginText =
                 new Label(
-                        "Already have an account?"
+                        I18n.t("register.loginInstead")
                 );
 
         Hyperlink loginLink =
-                new Hyperlink("Login");
+                new Hyperlink(I18n.t("register.loginButton"));
 
         registerButton.setOnAction(e -> {
 
@@ -104,8 +105,8 @@ public class Register {
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Missing fields",
-                        "Please fill in all fields."
+                        I18n.t("register.emptyField.title"),
+                        I18n.t("register.emptyField.message")
                 );
 
                 return;
@@ -115,8 +116,8 @@ public class Register {
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Password too short",
-                        "Password must contain at least 6 characters."
+                        I18n.t("register.passwordShortError.title"),
+                        I18n.t("register.passwordShortError.message")
                 );
 
                 return;
@@ -124,7 +125,7 @@ public class Register {
 
             registerButton.setDisable(true);
             registerButton.setText(
-                    "Creating account..."
+                    I18n.t("register.creating")
             );
 
             try {
@@ -138,8 +139,8 @@ public class Register {
 
                 showAlert(
                         Alert.AlertType.INFORMATION,
-                        "Account created",
-                        "Your account has been created successfully."
+                        I18n.t("register.created.title"),
+                        I18n.t("register.created.message")
                 );
 
                 new Login().show(stage);
@@ -148,12 +149,12 @@ public class Register {
 
                 registerButton.setDisable(false);
                 registerButton.setText(
-                        "Create Account"
+                        I18n.t("register.createButton")
                 );
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Registration failed",
+                        I18n.t("register.createError"),
                         ex.getMessage()
                 );
             }
@@ -211,7 +212,7 @@ public class Register {
                 getClass().getResource("/style.css").toExternalForm()
         );
 
-        stage.setTitle("Create Account");
+        stage.setTitle(I18n.t("register.title"));
         stage.setScene(scene);
         stage.show();
     }

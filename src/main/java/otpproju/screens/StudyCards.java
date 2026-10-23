@@ -21,6 +21,7 @@ import otpproju.repository.FlashcardRepository;
 import otpproju.repository.FlashcardSetRepository;
 import otpproju.service.FlashcardService;
 import otpproju.service.FlashcardSetService;
+import otpproju.config.I18n;
 
 public class StudyCards {
 
@@ -76,7 +77,7 @@ public class StudyCards {
     public void show(Stage stage) {
 
         setTitle =
-                new Label("Study Cards");
+                new Label(I18n.t("studyCards.title"));
 
         setTitle.getStyleClass().add(
                 "page-title"
@@ -86,7 +87,7 @@ public class StudyCards {
                 new ComboBox<>();
 
         setComboBox.setPromptText(
-                "Choose a set to study"
+                I18n.t("studyCards.choose")
         );
 
         setComboBox.setMaxWidth(
@@ -111,7 +112,7 @@ public class StudyCards {
 
             showAlert(
                     Alert.AlertType.ERROR,
-                    "Could not load sets",
+                    I18n.t("studyCards.loadErrorSet"),
                     ex.getMessage()
             );
         }
@@ -119,7 +120,7 @@ public class StudyCards {
 
         Button loadButton =
                 new Button(
-                        "Start Studying"
+                        I18n.t("studyCards.loadButton")
                 );
 
         loadButton.setMaxWidth(
@@ -131,7 +132,7 @@ public class StudyCards {
 
         progressText =
                 new Label(
-                        "Choose a set to begin."
+                        I18n.t("studyCards.chooseSet")
                 );
 
         progressText.getStyleClass().add(
@@ -141,8 +142,8 @@ public class StudyCards {
 
         cardText =
                 new Label(
-                        "Your flashcard will " +
-                                "appear here."
+                        I18n.t("studyCards.cardLabel1") +
+                                I18n.t("studyCards.cardLabel2")
                 );
 
         cardText.setWrapText(
@@ -168,7 +169,7 @@ public class StudyCards {
 
         answerButton =
                 new Button(
-                        "Show Answer"
+                        I18n.t("studyCards.answerButton")
                 );
 
         answerButton.setMaxWidth(
@@ -186,7 +187,7 @@ public class StudyCards {
 
         nextButton =
                 new Button(
-                        "Next Card"
+                        I18n.t("studyCards.next")
                 );
 
         nextButton.setMaxWidth(
@@ -203,7 +204,7 @@ public class StudyCards {
 
 
         Button backButton =
-                new Button("Back");
+                new Button(I18n.t("app.backButton"));
 
         backButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -224,8 +225,8 @@ public class StudyCards {
 
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "No set selected",
-                        "Please choose a flashcard set."
+                        I18n.t("studyCards.select.title"),
+                        I18n.t("studyCards.select.message")
                 );
 
                 return;
@@ -317,7 +318,7 @@ public class StudyCards {
 
 
         stage.setTitle(
-                "Study Cards"
+                I18n.t("studyCards.title")
         );
 
         stage.setScene(scene);
@@ -350,12 +351,12 @@ public class StudyCards {
             if (cards.isEmpty()) {
 
                 cardText.setText(
-                        "This set does not have " +
-                                "any cards yet."
+                        I18n.t("studyCards.noCards1") +
+                                I18n.t("studyCards.noCards2")
                 );
 
                 progressText.setText(
-                        "0 cards"
+                        I18n.t("studyCards.0cards")
                 );
 
                 answerButton.setDisable(
@@ -375,7 +376,7 @@ public class StudyCards {
 
             showAlert(
                     Alert.AlertType.ERROR,
-                    "Could not load cards",
+                    I18n.t("studyCards.loadError"),
                     ex.getMessage()
             );
         }
@@ -397,14 +398,17 @@ public class StudyCards {
         );
 
         progressText.setText(
-                "Card " +
+                I18n.t("studyCards.progress1")
+                        +
                         (currentCardIndex + 1) +
-                        " of " +
+                        I18n.t("studyCards.progress2")
+                        +
                         cards.size()
         );
 
         answerButton.setText(
-                "Show Answer"
+                I18n.t("studyCards.answerButton")
+
         );
 
         answerButton.setDisable(
@@ -458,13 +462,16 @@ public class StudyCards {
         } else {
 
             progressText.setText(
-                    "Finished " +
+                    I18n.t("studyCards.completedCards")
+                            +
                             cards.size() +
-                            " cards!"
+                            I18n.t("studyCards.completedCardQuantity")
+
             );
 
             cardText.setText(
-                    "Great job!"
+                    I18n.t("studyCards.congrats")
+
             );
 
             answerButton.setDisable(

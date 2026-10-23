@@ -12,6 +12,7 @@ import otpproju.repository.FlashcardSetRepository;
 import otpproju.service.FlashcardSetService;
 
 import java.util.List;
+import otpproju.config.I18n;
 
 public class UserPage {
 
@@ -33,12 +34,12 @@ public class UserPage {
         // TOP BAR
 
         Label appName =
-                new Label("Simply Flashcard");
+                new Label(I18n.t("app.title"));
 
         appName.getStyleClass().add("app-title");
 
         Button logoutButton =
-                new Button("Logout");
+                new Button(I18n.t("userPage.logout"));
 
         logoutButton.getStyleClass().add("logout-button");
 
@@ -62,8 +63,7 @@ public class UserPage {
 
         Label greeting =
                 new Label(
-                        "Hello, " +
-                                user.getUsername()
+                        I18n.t("userPage.greet") + (", ") + user.getUsername()
                 );
 
         greeting.getStyleClass().add(
@@ -72,7 +72,7 @@ public class UserPage {
 
         Label subtitle =
                 new Label(
-                        "Ready to study?"
+                        I18n.t("userPage.subs")
                 );
 
         subtitle.getStyleClass().add(
@@ -97,7 +97,7 @@ public class UserPage {
 
         Label createSetTitle =
                 new Label(
-                        "Create a flashcard set"
+                        I18n.t("userPage.createSet")
                 );
 
         createSetTitle.getStyleClass().add(
@@ -106,8 +106,8 @@ public class UserPage {
 
         Label createSetDescription =
                 new Label(
-                        "Organize your flashcards " +
-                                "into a new set."
+                        I18n.t("userPage.createSetDesc1") +
+                                I18n.t("userPage.createSetDesc2")
                 );
 
         createSetDescription.setWrapText(
@@ -115,7 +115,7 @@ public class UserPage {
         );
 
         Button createSetButton =
-                new Button("＋ Create Set");
+                new Button(I18n.t("userPage.createButton"));
 
         createSetButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -150,7 +150,7 @@ public class UserPage {
 
         Label createCardTitle =
                 new Label(
-                        "Create a flashcard"
+                        I18n.t("userPage.createButton")
                 );
 
         createCardTitle.getStyleClass().add(
@@ -159,8 +159,8 @@ public class UserPage {
 
         Label createCardDescription =
                 new Label(
-                        "Add a question and answer " +
-                                "to a card set."
+                        I18n.t("userPage.createDesc1") +
+                                I18n.t("userPage.createDesc2")
                 );
 
         createCardDescription.setWrapText(
@@ -168,7 +168,7 @@ public class UserPage {
         );
 
         Button createCardButton =
-                new Button("＋ Create Card");
+                new Button(I18n.t("userPage.createButton"));
 
         createCardButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -203,7 +203,7 @@ public class UserPage {
 
         Label studyTitle =
                 new Label(
-                        "Study your cards"
+                        I18n.t("userPage.studyTitle")
                 );
 
         studyTitle.getStyleClass().add(
@@ -212,7 +212,7 @@ public class UserPage {
 
         Label studyDescription =
                 new Label(
-                        "Review your flashcard sets."
+                        I18n.t("userPage.studyDesc")
                 );
 
         studyDescription.setWrapText(
@@ -220,7 +220,7 @@ public class UserPage {
         );
 
         Button studyButton =
-                new Button("Study Cards");
+                new Button(I18n.t("userPage.studyButton"));
 
         studyButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -252,7 +252,7 @@ public class UserPage {
 
         Label recentTitle =
                 new Label(
-                        "My Flashcard Sets"
+                        I18n.t("userPage.mySets")
                 );
 
         recentTitle.getStyleClass().add(
@@ -347,7 +347,7 @@ public class UserPage {
         );
 
         stage.setTitle(
-                "Simply Flashcard"
+                I18n.t("app.title")
         );
 
         stage.setScene(scene);
@@ -372,8 +372,8 @@ public class UserPage {
 
                 Label emptyLabel =
                         new Label(
-                                "You don't have " +
-                                        "any sets yet."
+                                I18n.t("userPage.noSetError1") +
+                                        I18n.t("userPage.noSetError2")
                         );
 
                 setsBox.getChildren().add(
@@ -420,8 +420,8 @@ public class UserPage {
 
             Label error =
                     new Label(
-                            "Could not load " +
-                                    "flashcard sets."
+                            I18n.t("userPage.loadError1") +
+                                    I18n.t("userPage.loadError2")
                     );
 
             setsBox.getChildren().add(

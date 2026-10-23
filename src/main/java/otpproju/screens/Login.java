@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import otpproju.model.User;
 import otpproju.repository.UserRepository;
 import otpproju.service.UserService;
+import otpproju.config.I18n;
 
 public class Login {
     private final UserService userService;
@@ -20,34 +21,34 @@ public class Login {
 
     public void show(Stage stage) {
 
-        Label appTitle = new Label("Simply Flashcard");
+        Label appTitle = new Label(I18n.t("app.title"));
         appTitle.getStyleClass().add("app-title");
 
-        Label title = new Label("Welcome back");
+        Label title = new Label(I18n.t("login.title"));
         title.getStyleClass().add("page-title");
 
         Label description = new Label(
-                "Login to continue studying."
+                I18n.t("login.description")
         );
 
         TextField emailField = new TextField();
-        emailField.setPromptText("Email");
+        emailField.setPromptText(I18n.t("login.email"));
         emailField.setPrefHeight(45);
 
         PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("Password");
+        passwordField.setPromptText(I18n.t("login.password"));
         passwordField.setPrefHeight(45);
 
-        Button loginButton = new Button("Login");
+        Button loginButton = new Button(I18n.t("login.button"));
         loginButton.setMaxWidth(Double.MAX_VALUE);
         loginButton.setPrefHeight(45);
 
         Label registerText = new Label(
-                "Don't have an account?"
+                I18n.t("login.noAccount")
         );
 
         Hyperlink registerLink = new Hyperlink(
-                "Create an account"
+                I18n.t("login.registerAccount")
         );
 
         loginButton.setOnAction(e -> {
@@ -58,14 +59,14 @@ public class Login {
             if (email.isEmpty() || password.isEmpty()) {
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Missing fields",
-                        "Please enter your email and password."
+                        I18n.t("login.missingFields.title"),
+                        I18n.t("login.missingFields.message")
                 );
                 return;
             }
 
             loginButton.setDisable(true);
-            loginButton.setText("Logging in...");
+            loginButton.setText(I18n.t("login.buttonLoading"));
 
             try {
                 User user = userService.login(
@@ -73,15 +74,15 @@ public class Login {
                         password
                 );
                 loginButton.setDisable(false);
-                loginButton.setText("Login");
+                loginButton.setText(I18n.t("login.button"));
                 new UserPage(user).show(stage);
             } catch (Exception ex) {
 
                 loginButton.setDisable(false);
-                loginButton.setText("Login");
+                loginButton.setText(I18n.t("login.button"));
                 showAlert(
                         Alert.AlertType.ERROR,
-                        "Login failed",
+                        I18n.t("login.failed.title"),
                         ex.getMessage()
                 );
             }
@@ -125,7 +126,7 @@ public class Login {
                 getClass().getResource("/style.css").toExternalForm()
         );
 
-        stage.setTitle("Simply Flashcard");
+        stage.setTitle(I18n.t("app.title"));
         stage.setScene(scene);
         stage.show();
     }
