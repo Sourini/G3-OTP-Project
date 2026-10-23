@@ -47,11 +47,32 @@ public class UserPage {
                 new Login().show(stage)
         );
 
-        BorderPane topBar =
-                new BorderPane();
+        BorderPane topBar = new BorderPane();
 
         topBar.setLeft(appName);
-        topBar.setRight(logoutButton);
+
+        // LANGUAGE DROPDOWN MENU
+        ComboBox<String> languageSelector = new ComboBox<>();
+
+        languageSelector.getItems().addAll(
+                "English",
+                "한국어",
+                "Русский"
+        );
+
+        languageSelector.setValue("English");
+        languageSelector.setPrefWidth(140);
+        languageSelector.getStyleClass().add("language-selector");
+
+        // LANGUAGE SELECTOR AND LOGOUT
+        HBox topRight = new HBox(
+                12,
+                languageSelector,
+                logoutButton
+        );
+
+        topRight.setAlignment(Pos.CENTER_RIGHT);
+        topBar.setRight(topRight);
 
         topBar.setPadding(
                 new Insets(15, 20, 15, 20)
