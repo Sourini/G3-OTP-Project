@@ -310,6 +310,7 @@ public class UserPage {
         VBox setsBox =
                 new VBox(8);
 
+        setsBox.setAlignment(Pos.TOP_CENTER);
         setsBox.setMaxWidth(500);
         setsBox.setPrefWidth(500);
 
