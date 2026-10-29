@@ -25,7 +25,8 @@ public final class I18n {
                     Locale.ENGLISH,
                     Locale.KOREAN,
                     Locale.forLanguageTag("ru"),
-                    Locale.forLanguageTag("ar")
+                    Locale.forLanguageTag("ar"),
+                    Locale.forLanguageTag("fi")
             );
 
     private static final Map<String, String> BUNDLE_NAMES =
@@ -33,7 +34,8 @@ public final class I18n {
                     "en", "Message_bundle_eng",
                     "ko", "Message_bundle_kor",
                     "ru", "Message_bundle_rus",
-                    "ar", "Message_bundle_ara"
+                    "ar", "Message_bundle_ara",
+                    "fi", "Message_bundle_fin"
             );
 
     private static final ReadOnlyObjectWrapper<Locale> LOCALE =
