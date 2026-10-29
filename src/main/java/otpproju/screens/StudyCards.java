@@ -79,6 +79,17 @@ public class StudyCards {
         setTitle =
                 new Label(I18n.t("studyCards.title"));
 
+        setTitle.textProperty().addListener(
+                (observable, oldText, newText) ->
+                        setTitle.setNodeOrientation(
+                                I18n.getTextOrientation(newText)
+                        )
+        );
+
+        setTitle.setNodeOrientation(
+                I18n.getTextOrientation(setTitle.getText())
+        );
+
         setTitle.getStyleClass().add(
                 "page-title"
         );
@@ -145,6 +156,17 @@ public class StudyCards {
                         I18n.t("studyCards.cardLabel1") +
                                 I18n.t("studyCards.cardLabel2")
                 );
+
+        cardText.textProperty().addListener(
+                (observable, oldText, newText) ->
+                        cardText.setNodeOrientation(
+                                I18n.getTextOrientation(newText)
+                        )
+        );
+
+        cardText.setNodeOrientation(
+                I18n.getTextOrientation(cardText.getText())
+        );
 
         cardText.setWrapText(
                 true
@@ -321,6 +343,7 @@ public class StudyCards {
                 I18n.t("studyCards.title")
         );
 
+        scene.getRoot().setNodeOrientation(I18n.getOrientation());
         stage.setScene(scene);
         stage.show();
     }
@@ -398,12 +421,11 @@ public class StudyCards {
         );
 
         progressText.setText(
-                I18n.t("studyCards.progress1")
-                        +
-                        (currentCardIndex + 1) +
-                        I18n.t("studyCards.progress2")
-                        +
+                I18n.format(
+                        "studyCards.progress",
+                        currentCardIndex + 1,
                         cards.size()
+                )
         );
 
         answerButton.setText(
@@ -462,11 +484,10 @@ public class StudyCards {
         } else {
 
             progressText.setText(
-                    I18n.t("studyCards.completedCards")
-                            +
-                            cards.size() +
-                            I18n.t("studyCards.completedCardQuantity")
-
+                    I18n.format(
+                            "studyCards.completed",
+                            cards.size()
+                    )
             );
 
             cardText.setText(
@@ -498,6 +519,9 @@ public class StudyCards {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.getDialogPane().setNodeOrientation(
+                I18n.getOrientation()
+        );
 
         alert.showAndWait();
     }

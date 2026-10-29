@@ -398,6 +398,7 @@ public class UserPage {
                 I18n.t("app.title")
         );
 
+        scene.getRoot().setNodeOrientation(I18n.getOrientation());
         stage.setScene(scene);
         stage.show();
     }

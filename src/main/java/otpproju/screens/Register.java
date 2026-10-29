@@ -15,6 +15,7 @@ import otpproju.model.User;
 import otpproju.repository.UserRepository;
 import otpproju.service.UserService;
 import otpproju.config.I18n;
+import javafx.geometry.NodeOrientation;
 
 public class Register {
 
@@ -55,6 +56,10 @@ public class Register {
 
         TextField emailField =
                 new TextField();
+
+        emailField.setNodeOrientation(
+                NodeOrientation.LEFT_TO_RIGHT
+        );
 
         emailField.setPromptText(
                 I18n.t("register.email")
@@ -213,6 +218,7 @@ public class Register {
         );
 
         stage.setTitle(I18n.t("register.title"));
+        scene.getRoot().setNodeOrientation(I18n.getOrientation());
         stage.setScene(scene);
         stage.show();
     }
@@ -229,6 +235,9 @@ public class Register {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.getDialogPane().setNodeOrientation(
+                I18n.getOrientation()
+        );
 
         alert.showAndWait();
     }

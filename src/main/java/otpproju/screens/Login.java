@@ -10,6 +10,7 @@ import otpproju.model.User;
 import otpproju.repository.UserRepository;
 import otpproju.service.UserService;
 import otpproju.config.I18n;
+import javafx.geometry.NodeOrientation;
 
 public class Login {
     private final UserService userService;
@@ -32,6 +33,9 @@ public class Login {
         );
 
         TextField emailField = new TextField();
+        emailField.setNodeOrientation(
+                NodeOrientation.LEFT_TO_RIGHT
+        );
         emailField.setPromptText(I18n.t("login.email"));
         emailField.setPrefHeight(45);
 
@@ -127,6 +131,7 @@ public class Login {
         );
 
         stage.setTitle(I18n.t("app.title"));
+        scene.getRoot().setNodeOrientation(I18n.getOrientation());
         stage.setScene(scene);
         stage.show();
     }
@@ -140,6 +145,9 @@ public class Login {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.getDialogPane().setNodeOrientation(
+                I18n.getOrientation()
+        );
         alert.showAndWait();
     }
 }

@@ -218,6 +218,7 @@ public class CreateCardSet {
 
         );
 
+        scene.getRoot().setNodeOrientation(I18n.getOrientation());
         stage.setScene(scene);
         stage.show();
     }
@@ -234,6 +235,9 @@ public class CreateCardSet {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
+        alert.getDialogPane().setNodeOrientation(
+                I18n.getOrientation()
+        );
 
         alert.showAndWait();
     }

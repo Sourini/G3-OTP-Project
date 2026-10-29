@@ -14,6 +14,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import javafx.geometry.NodeOrientation;
+import java.text.MessageFormat;
+import java.text.Bidi;
 
 public final class I18n {
 
@@ -21,14 +24,16 @@ public final class I18n {
             List.of(
                     Locale.ENGLISH,
                     Locale.KOREAN,
-                    Locale.forLanguageTag("ru")
+                    Locale.forLanguageTag("ru"),
+                    Locale.forLanguageTag("ar")
             );
 
     private static final Map<String, String> BUNDLE_NAMES =
             Map.of(
                     "en", "Message_bundle_eng",
                     "ko", "Message_bundle_kor",
-                    "ru", "Message_bundle_rus"
+                    "ru", "Message_bundle_rus",
+                    "ar", "Message_bundle_ara"
             );
 
     private static final ReadOnlyObjectWrapper<Locale> LOCALE =
@@ -114,5 +119,31 @@ public final class I18n {
         String value = bundle.getString(key);
 
         return value.isBlank() ? null : value;
+    }
+
+    public static boolean isRightToLeft() {
+        return "ar".equals(getLocale().getLanguage());
+    }
+
+    public static NodeOrientation getOrientation() {
+        return isRightToLeft()
+                ? NodeOrientation.RIGHT_TO_LEFT
+                : NodeOrientation.LEFT_TO_RIGHT;
+    }
+
+    public static String format(String key, Object... arguments) {
+        return new MessageFormat(t(key), getLocale())
+                .format(arguments);
+    }
+
+    public static NodeOrientation getTextOrientation(String text) {
+        Bidi bidi = new Bidi(
+                text == null ? "" : text,
+                Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
+        );
+
+        return bidi.baseIsLeftToRight()
+                ? NodeOrientation.LEFT_TO_RIGHT
+                : NodeOrientation.RIGHT_TO_LEFT;
     }
 }
