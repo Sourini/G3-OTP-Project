@@ -13,6 +13,8 @@ import otpproju.service.FlashcardSetService;
 
 import java.util.List;
 import otpproju.config.I18n;
+import java.util.Locale;
+import javafx.util.StringConverter;
 
 public class UserPage {
 
@@ -52,17 +54,42 @@ public class UserPage {
         topBar.setLeft(appName);
 
         // LANGUAGE DROPDOWN MENU
-        ComboBox<String> languageSelector = new ComboBox<>();
+        ComboBox<Locale> languageSelector = new ComboBox<>();
 
-        languageSelector.getItems().addAll(
-                "English",
-                "한국어",
-                "Русский"
+        languageSelector.getItems().setAll(
+                I18n.getSupportedLocales()
         );
 
-        languageSelector.setValue("English");
+        languageSelector.setConverter(new StringConverter<Locale>() {
+            @Override
+            public String toString(Locale locale) {
+                return locale == null
+                        ? ""
+                        : locale.getDisplayLanguage(locale);
+            }
+
+            @Override
+            public Locale fromString(String text) {
+                throw new UnsupportedOperationException(
+                        "Language selector is not editable"
+                );
+            }
+        });
+
+        languageSelector.setEditable(false);
+        languageSelector.setValue(I18n.getLocale());
         languageSelector.setPrefWidth(140);
         languageSelector.getStyleClass().add("language-selector");
+
+        languageSelector.setOnAction(event -> {
+            Locale selected = languageSelector.getValue();
+
+            if (selected != null && !selected.equals(I18n.getLocale())) {
+                I18n.setLocale(selected);
+
+                show(stage);
+            }
+        });
 
         // LANGUAGE SELECTOR AND LOGOUT
         HBox topRight = new HBox(
@@ -136,7 +163,7 @@ public class UserPage {
         );
 
         Button createSetButton =
-                new Button(I18n.t("userPage.createButton"));
+                new Button(I18n.t("createCardSet.createButton"));
 
         createSetButton.setMaxWidth(
                 Double.MAX_VALUE
