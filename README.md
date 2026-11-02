@@ -145,7 +145,7 @@ The application supports five languages, that the user can choose between using 
 - Language selector is implemented.
 - Available language options are English, Russian, Korean, Arabic and Finnish.
 - UI updates when selecting a language.
-- Right-to-left support for Arabic (and any other RTL language) has been implemented.
+- Right-to-left support for Arabic (and any other RTL language) has been implemented through the Bidi and MessageFormat libraries.
 
 
 ### Development Process
