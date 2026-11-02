@@ -137,14 +137,16 @@ The application supports five languages, that the user can choose between using 
 | English | en | left-to-right |
 | Russian | ru | left-to-right |
 | Korean | ko | left-to-right |
-| Arabic | ar | currently left-to-right, right-to-left support is planned |
+| Arabic | ar | right-to-left |
+| Finnish | fi | left-to-right |
+
 
 #### Current Localization Status 
 - Language selector is implemented.
-- Available language options are English, Russian, Korean and Arabic.
+- Available language options are English, Russian, Korean, Arabic and Finnish.
 - UI updates when selecting a language.
-- Right-to-left support for Arabic has not yet been implemented.
-- Full verification of translations, date formatting and number formatting to be done.
+- Right-to-left support for Arabic (and any other RTL language) has been implemented.
+
 
 ### Development Process
 
