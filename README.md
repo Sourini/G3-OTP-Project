@@ -126,7 +126,7 @@ The database schema is defined in:
 - [Database schema diagram](Diagrams/dbschema.png)
 ![db schema image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/dbschema.png?raw=true)
 - [Use-case diagram](Diagrams/usecase.png)
-![usecase image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/usecase.png?raw=true)
+![usecase image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/uu%C3%A4m%C3%A4lkakkone.png?raw=true)
 
 ### UI Localization
 
