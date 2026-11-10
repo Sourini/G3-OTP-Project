@@ -126,7 +126,27 @@ The database schema is defined in:
 - [Database schema diagram](Diagrams/dbschema.png)
 ![db schema image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/dbschema.png?raw=true)
 - [Use-case diagram](Diagrams/usecase.png)
-![usecase image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/usecase.png?raw=true)
+![usecase image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/uu%C3%A4m%C3%A4lkakkone.png?raw=true)
+
+### UI Localization
+
+The application supports five languages, that the user can choose between using the applications language selector. Changing to the selected language dynamically updates the visible interface text. 
+
+| Language | Locale Code | Text Direction |
+| --- | --- | --- |
+| English | en | left-to-right |
+| Russian | ru | left-to-right |
+| Korean | ko | left-to-right |
+| Arabic | ar | right-to-left |
+| Finnish | fi | left-to-right |
+
+
+#### Current Localization Status 
+- Language selector is implemented.
+- Available language options are English, Russian, Korean, Arabic and Finnish.
+- UI updates when selecting a language.
+- Right-to-left support for Arabic (and any other RTL language) has been implemented through the Bidi and MessageFormat libraries.
+
 
 ### Development Process
 
@@ -144,7 +164,7 @@ GitHub is used for source control and sharing documentation. Jenkins checks the 
 | `src/main/java/otpproju/repository` | Database operations |
 | `src/main/java/otpproju/screens` | JavaFX interface |
 | `src/main/java/otpproju/service` | Business logic |
-| `src/main/resources` | Application resources, including styling |
+| `src/main/resources` | Application resources, including styling and localization files |
 | `src/test/java/otpproju` | Automated tests |
 | `Documents` | Project documentation and sprint reports |
 | `Diagrams` | Design diagrams |
@@ -182,6 +202,20 @@ The tests cover important functionalities:
 - User data separation
 - Application functionality
 - Input validation
+
+### Localization Testing
+
+Localization testing verifies that the application displays the correct
+translations when users change the selected language.
+
+Testing should cover:
+- Switching between all five supported languages.
+- Checking that interface text updates correctly.
+- Checking for missing or untranslated strings.
+- Verifying that special characters display correctly.
+- Testing Russian, Korean, and Arabic character rendering.
+- Checking Arabic text alignment and documenting the current RTL limitation.
+- Verifying that language selection does not break existing application functionality.
 
 ---
 
