@@ -7,7 +7,6 @@ import otpproju.repository.RepositoryException;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -23,153 +22,61 @@ public class UserService {
     private static final int BCRYPT_COST = 12;
 
     private static final Pattern EMAIL_PATTERN =
-            Pattern.compile(
-                    "^[A-Za-z0-9._%+-]+@" +
-                            "[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-            );
+            Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     private final UserRepository repository;
 
     public UserService(UserRepository repository) {
         this.repository = Objects.requireNonNull(
-                repository,
-                "User repository must not be null"
-        );
+                repository, "User repository must not be null");
     }
 
     public User getUser(int userId) {
         validatePositiveId(userId, "User ID");
-
-        return repository.findById(userId).orElseThrow(
-                () -> new NoSuchElementException(
-                        "User was not found"
-                )
-        );
+        return findOrThrow(userId);
     }
 
     public List<User> getAllUsers() {
         return repository.findAll();
     }
 
-    public User updateProfile(
-            int userId,
-            String username,
-            String email
-    ) {
+    public User updateProfile(int userId, String username, String email) {
         validatePositiveId(userId, "User ID");
+        User user = findOrThrow(userId);
 
-        User user = repository
-                .findById(userId)
-                .orElseThrow(
-                        () -> new NoSuchElementException(
-                                "User was not found"
-                        )
-                );
+        String cleanedUsername = validateUsername(username);
+        String cleanedEmail = validateEmail(email);
 
-        String cleanedUsername =
-                validateUsername(username);
-
-        String cleanedEmail =
-                validateEmail(email);
-
-        Optional<User> usernameOwner =
-                repository.findByUsername(cleanedUsername);
-
-        if (usernameOwner.isPresent()
-                && !usernameOwner.get()
-                .getUserId()
-                .equals(userId)) {
-
-            throw new IllegalArgumentException(
-                    "Username is already in use"
-            );
-        }
-
-        Optional<User> emailOwner =
-                repository.findByEmail(cleanedEmail);
-
-        if (emailOwner.isPresent()
-                && !emailOwner.get()
-                .getUserId()
-                .equals(userId)) {
-
-            throw new IllegalArgumentException(
-                    "Email address is already in use"
-            );
-        }
+        ensureUsernameAvailable(cleanedUsername, userId);
+        ensureEmailAvailable(cleanedEmail, userId);
 
         user.setUsername(cleanedUsername);
         user.setEmail(cleanedEmail);
 
         if (!repository.update(user)) {
-            throw new RepositoryException(
-                    "User profile could not be updated"
-            );
+            throw new RepositoryException("User profile could not be updated");
         }
 
-        return repository
-                .findById(userId)
-                .orElseThrow(
-                        () -> new RepositoryException(
-                                "Updated user could not be retrieved"
-                        )
-                );
+        return repository.findById(userId).orElseThrow(
+                () -> new RepositoryException("Updated user could not be retrieved"));
     }
 
-    public void changePassword(
-            int userId,
-            String currentPassword,
-            String newPassword
-    ) {
+    public void changePassword(int userId, String currentPassword, String newPassword) {
         validatePositiveId(userId, "User ID");
 
-        if (currentPassword == null
-                || currentPassword.isEmpty()) {
-
-            throw new AuthenticationException(
-                    "Current password is incorrect"
-            );
+        if (currentPassword == null || currentPassword.isEmpty()) {
+            throw new AuthenticationException("Current password is incorrect");
         }
 
         validatePassword(newPassword);
+        User user = findOrThrow(userId);
 
-        User user = repository
-                .findById(userId)
-                .orElseThrow(
-                        () -> new NoSuchElementException(
-                                "User was not found"
-                        )
-                );
-
-        boolean currentPasswordMatches;
-
-        try {
-            currentPasswordMatches = BCrypt.checkpw(
-                    currentPassword,
-                    user.getPasswordHash()
-            );
-        } catch (IllegalArgumentException exception) {
-            currentPasswordMatches = false;
+        if (!passwordMatches(currentPassword, user)) {
+            throw new AuthenticationException("Current password is incorrect");
         }
 
-        if (!currentPasswordMatches) {
-            throw new AuthenticationException(
-                    "Current password is incorrect"
-            );
-        }
-
-        String newPasswordHash = BCrypt.hashpw(
-                newPassword,
-                BCrypt.gensalt(BCRYPT_COST)
-        );
-
-        if (!repository.updatePasswordHash(
-                userId,
-                newPasswordHash
-        )) {
-            throw new RepositoryException(
-                    "Password could not be updated"
-            );
+        if (!repository.updatePasswordHash(userId, hashPassword(newPassword))) {
+            throw new RepositoryException("Password could not be updated");
         }
     }
 
@@ -177,176 +84,116 @@ public class UserService {
         validatePositiveId(userId, "User ID");
 
         if (!repository.deleteById(userId)) {
-            throw new NoSuchElementException(
-                    "User was not found"
-            );
+            throw new NoSuchElementException("User was not found");
         }
     }
 
-    private void validatePositiveId(
-            int id,
-            String fieldName
-    ) {
-        if (id <= 0) {
-            throw new IllegalArgumentException(
-                    fieldName + " must be positive"
-            );
-        }
-    }
-
-    public User registerUser(
-            String username,
-            String email,
-            String password
-    ) {
-        String cleanedUsername =
-                validateUsername(username);
-
-        String cleanedEmail =
-                validateEmail(email);
-
+    public User registerUser(String username, String email, String password) {
+        String cleanedUsername = validateUsername(username);
+        String cleanedEmail = validateEmail(email);
         validatePassword(password);
 
-        if (repository
-                .findByUsername(cleanedUsername)
-                .isPresent()) {
-
-            throw new IllegalArgumentException(
-                    "Username is already in use"
-            );
-        }
-
-        if (repository
-                .findByEmail(cleanedEmail)
-                .isPresent()) {
-
-            throw new IllegalArgumentException(
-                    "Email address is already in use"
-            );
-        }
-
-        String passwordHash = BCrypt.hashpw(
-                password,
-                BCrypt.gensalt(BCRYPT_COST)
-        );
+        ensureUsernameAvailable(cleanedUsername, null);
+        ensureEmailAvailable(cleanedEmail, null);
 
         User user = new User(
                 cleanedUsername,
                 cleanedEmail,
-                passwordHash,
-                User.UserType.STUDENT
-        );
+                hashPassword(password),
+                User.UserType.STUDENT);
 
         return repository.create(user);
     }
 
-    public User login(
-            String email,
-            String password
-    ) {
-        String cleanedEmail =
-                validateEmail(email);
+    public User login(String email, String password) {
+        String cleanedEmail = validateEmail(email);
 
-        if (password == null || password.isEmpty()) {
-            throw new AuthenticationException(
-                    "Invalid email or password"
-            );
+        return repository.findByEmail(cleanedEmail)
+                .filter(user -> passwordMatches(password, user))
+                .orElseThrow(() -> new AuthenticationException("Invalid email or password"));
+    }
+
+    private User findOrThrow(int userId) {
+        return repository.findById(userId).orElseThrow(
+                () -> new NoSuchElementException("User was not found"));
+    }
+
+    private void ensureUsernameAvailable(String username, Integer currentUserId) {
+        repository.findByUsername(username)
+                .filter(owner -> !owner.getUserId().equals(currentUserId))
+                .ifPresent(owner -> {
+                    throw new IllegalArgumentException("Username is already in use");
+                });
+    }
+
+    private void ensureEmailAvailable(String email, Integer currentUserId) {
+        repository.findByEmail(email)
+                .filter(owner -> !owner.getUserId().equals(currentUserId))
+                .ifPresent(owner -> {
+                    throw new IllegalArgumentException("Email address is already in use");
+                });
+    }
+
+    private String hashPassword(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt(BCRYPT_COST));
+    }
+
+    private boolean passwordMatches(String rawPassword, User user) {
+        if (rawPassword == null || rawPassword.isEmpty()) {
+            return false;
         }
-
-        User user = repository
-                .findByEmail(cleanedEmail)
-                .orElseThrow(
-                        () -> new AuthenticationException(
-                                "Invalid email or password"
-                        )
-                );
-
-        boolean passwordMatches;
-
         try {
-            passwordMatches = BCrypt.checkpw(
-                    password,
-                    user.getPasswordHash()
-            );
+            return BCrypt.checkpw(rawPassword, user.getPasswordHash());
         } catch (IllegalArgumentException exception) {
-            passwordMatches = false;
+            return false;
         }
+    }
 
-        if (!passwordMatches) {
-            throw new AuthenticationException(
-                    "Invalid email or password"
-            );
+
+    private void validatePositiveId(int id, String fieldName) {
+        if (id <= 0) {
+            throw new IllegalArgumentException(fieldName + " must be positive");
         }
-
-        return user;
     }
 
     private String validateUsername(String username) {
-        if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Username must not be empty"
-            );
-        }
-
-        String cleanedUsername = username.trim();
-
-        if (cleanedUsername.length() >
-                MAX_USERNAME_LENGTH) {
-
-            throw new IllegalArgumentException(
-                    "Username must not exceed 50 characters"
-            );
-        }
-
-        return cleanedUsername;
+        requireNotBlank(username, "Username");
+        String cleaned = username.trim();
+        requireMaxLength(cleaned, MAX_USERNAME_LENGTH, "Username");
+        return cleaned;
     }
 
     private String validateEmail(String email) {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Email must not be empty"
-            );
+        requireNotBlank(email, "Email");
+        String cleaned = email.trim().toLowerCase(Locale.ROOT);
+        requireMaxLength(cleaned, MAX_EMAIL_LENGTH, "Email");
+
+        if (!EMAIL_PATTERN.matcher(cleaned).matches()) {
+            throw new IllegalArgumentException("Email address is invalid");
         }
-
-        String cleanedEmail = email
-                .trim()
-                .toLowerCase(Locale.ROOT);
-
-        if (cleanedEmail.length() > MAX_EMAIL_LENGTH) {
-            throw new IllegalArgumentException(
-                    "Email must not exceed 255 characters"
-            );
-        }
-
-        if (!EMAIL_PATTERN
-                .matcher(cleanedEmail)
-                .matches()) {
-
-            throw new IllegalArgumentException(
-                    "Email address is invalid"
-            );
-        }
-
-        return cleanedEmail;
+        return cleaned;
     }
 
     private void validatePassword(String password) {
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException(
-                    "Password must not be empty"
-            );
-        }
+        requireNotBlank(password, "Password");
 
         if (password.length() < MIN_PASSWORD_LENGTH) {
             throw new IllegalArgumentException(
-                    "Password must contain at least 6 characters"
-            );
+                    "Password must contain at least " + MIN_PASSWORD_LENGTH + " characters");
         }
+        requireMaxLength(password, MAX_PASSWORD_LENGTH, "Password");
+    }
 
-        if (password.length() > MAX_PASSWORD_LENGTH) {
+    private void requireNotBlank(String value, String label) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(label + " must not be empty");
+        }
+    }
+
+    private void requireMaxLength(String value, int max, String label) {
+        if (value.length() > max) {
             throw new IllegalArgumentException(
-                    "Password must not exceed 72 characters"
-            );
+                    label + " must not exceed " + max + " characters");
         }
     }
 }
