@@ -32,27 +32,37 @@ public class CreateCard {
     private final FlashcardService flashcardService;
     private final FlashcardSetService flashcardSetService;
 
-    // Initializes the screen with the current user and flashcard services.
+    // Initializes the screen with the current user and default services.
     public CreateCard(User user) {
+        this(
+                user,
+                new FlashcardRepository(),
+                new FlashcardSetRepository()
+        );
+    }
 
+    // Creates the screen using the supplied repositories.
+    private CreateCard(
+            User user,
+            FlashcardRepository cardRepository,
+            FlashcardSetRepository setRepository
+    ) {
+        this(
+                user,
+                new FlashcardService(cardRepository, setRepository),
+                new FlashcardSetService(setRepository)
+        );
+    }
+
+    // Allows tests to supply controlled services.
+    CreateCard(
+            User user,
+            FlashcardService flashcardService,
+            FlashcardSetService flashcardSetService
+    ) {
         this.user = user;
-
-        FlashcardRepository cardRepository =
-                new FlashcardRepository();
-
-        FlashcardSetRepository setRepository =
-                new FlashcardSetRepository();
-
-        flashcardService =
-                new FlashcardService(
-                        cardRepository,
-                        setRepository
-                );
-
-        flashcardSetService =
-                new FlashcardSetService(
-                        setRepository
-                );
+        this.flashcardService = flashcardService;
+        this.flashcardSetService = flashcardSetService;
     }
 
     // Builds and displays the flashcard creation form, including
@@ -297,7 +307,7 @@ public class CreateCard {
     }
 
     // Displays a localized alert for validation or service feedback.
-    private void showAlert(
+    void showAlert(
             Alert.AlertType type,
             String title,
             String message
