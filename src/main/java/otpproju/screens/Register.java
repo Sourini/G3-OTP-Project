@@ -34,6 +34,12 @@ public class Register {
                 new UserService(userRepository);
     }
 
+    // Creates the registration screen with a supplied user service.
+    // This constructor allows tests to use a controlled service.
+    Register(UserService userService) {
+        this.userService = userService;
+    }
+
     // Builds and displays the registration form on the provided stage.
     public void show(Stage stage) {
 
@@ -232,7 +238,7 @@ public class Register {
     }
 
     // Displays an alert message to the user.
-    private void showAlert(
+    void showAlert(
             Alert.AlertType type,
             String title,
             String message
