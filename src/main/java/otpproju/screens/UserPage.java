@@ -16,6 +16,8 @@ import otpproju.config.I18n;
 import java.util.Locale;
 import javafx.util.StringConverter;
 
+// Displays the user's dashboard, including navigation options,
+// language selection, and the user's saved flashcard sets.
 public class UserPage {
 
     private final User user;
@@ -37,6 +39,8 @@ public class UserPage {
         this.flashcardSetService = flashcardSetService;
     }
 
+    // Builds and displays the dashboard, including its top bar,
+    // language selector, action cards, and flashcard set list.
     public void show(Stage stage) {
 
         // TOP BAR
@@ -60,6 +64,7 @@ public class UserPage {
         topBar.setLeft(appName);
 
         // LANGUAGE DROPDOWN MENU
+        // Changing language rebuilds the screen so all translated text is refreshed.
         ComboBox<Locale> languageSelector = new ComboBox<>();
 
         languageSelector.getItems().setAll(
@@ -392,8 +397,8 @@ public class UserPage {
         stage.show();
     }
 
-    // LOAD FLASHCARD SETS
-
+    // Retrieves the user's flashcard sets and displays them as buttons.
+    // Displays an appropriate message if no sets are available or loading fails.
     private void loadSets(
             VBox setsBox
     ) {

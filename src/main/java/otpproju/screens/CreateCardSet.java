@@ -18,11 +18,14 @@ import otpproju.service.FlashcardSetService;
 
 import otpproju.config.I18n;
 
+// Displays the flashcard set creation form and
+// handles saving a new set for the current user.
 public class CreateCardSet {
 
     private final User user;
     private final FlashcardSetService flashcardSetService;
 
+    // Initializes the screen with the current user and flashcard set service.
     public CreateCardSet(User user) {
 
         this.user = user;
@@ -34,6 +37,8 @@ public class CreateCardSet {
                 new FlashcardSetService(repository);
     }
 
+    // Builds and displays the flashcard set form, including input validation,
+    // creation actions, and navigation back to the dashboard.
     public void show(Stage stage) {
 
         Label title =
@@ -225,6 +230,7 @@ public class CreateCardSet {
         stage.show();
     }
 
+    // Displays a localized alert using the current text direction.
     private void showAlert(
             Alert.AlertType type,
             String title,

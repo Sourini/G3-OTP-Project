@@ -23,6 +23,8 @@ import otpproju.service.FlashcardService;
 import otpproju.service.FlashcardSetService;
 import otpproju.config.I18n;
 
+// Provides the flashcard study screen, allowing users to select a set,
+// view questions and answers, and track their study progress.
 public class StudyCards {
 
     private final User user;
@@ -74,6 +76,8 @@ public class StudyCards {
         this.initialSet = selectedSet;
     }
 
+    // Builds and displays the study interface and loads an initially
+    // selected flashcard set when one has been provided.
     public void show(Stage stage) {
 
         setTitle =
@@ -354,8 +358,8 @@ public class StudyCards {
         stage.show();
     }
 
-    // LOAD CARDS
-
+    // Retrieves the flashcards belonging to the selected set
+    // and prepares the first card for studying.
     private void loadCards(
             FlashcardSet selectedSet
     ) {
@@ -411,8 +415,7 @@ public class StudyCards {
         }
     }
 
-    // CURRENT CARD
-
+    // Displays the current question and updates the study progress.
     private void showCurrentCard() {
 
         if (cards.isEmpty()) {
@@ -448,8 +451,7 @@ public class StudyCards {
         );
     }
 
-    // SHOW ANSWER
-
+    // Reveals the answer to the current flashcard.
     private void showAnswer() {
 
         if (cards.isEmpty()) {
@@ -472,8 +474,8 @@ public class StudyCards {
         );
     }
 
-    // NEXT CARD
-
+    // Advances to the next flashcard or displays the completion
+    // message when the user has reached the end of the set.
     private void showNextCard() {
 
         if (cards.isEmpty()) {
@@ -511,8 +513,7 @@ public class StudyCards {
         }
     }
 
-    // ALERT
-
+    // Displays an alert using the current application's text direction.
     private void showAlert(
             Alert.AlertType type,
             String title,

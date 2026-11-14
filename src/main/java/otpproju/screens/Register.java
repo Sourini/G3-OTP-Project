@@ -17,10 +17,14 @@ import otpproju.service.UserService;
 import otpproju.config.I18n;
 import javafx.geometry.NodeOrientation;
 
+// Displays the account registration screen and handles user registration.
+// Validates user input, communicates with the user service, and provides
+// navigation back to the login screen.
 public class Register {
 
     private final UserService userService;
 
+    // Creates the registration screen using the default user service.
     public Register() {
 
         UserRepository userRepository =
@@ -30,6 +34,7 @@ public class Register {
                 new UserService(userRepository);
     }
 
+    // Builds and displays the registration form on the provided stage.
     public void show(Stage stage) {
 
         Label appTitle =
@@ -226,6 +231,7 @@ public class Register {
         stage.show();
     }
 
+    // Displays an alert message to the user.
     private void showAlert(
             Alert.AlertType type,
             String title,

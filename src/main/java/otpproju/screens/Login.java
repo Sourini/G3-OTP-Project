@@ -12,6 +12,8 @@ import otpproju.service.UserService;
 import otpproju.config.I18n;
 import javafx.geometry.NodeOrientation;
 
+// Displays the login screen and handles user authentication.
+// Successful login redirects the user to their dashboard.
 public class Login {
     private final UserService userService;
 
@@ -20,7 +22,8 @@ public class Login {
         userService = new UserService(userRepository);
     }
 
-    // LOGIN START
+    // Builds and displays the login form, including input fields,
+    // login validation, and navigation to registration.
     public void show(Stage stage) {
 
         Label appTitle = new Label(I18n.t("app.title"));
@@ -142,6 +145,7 @@ public class Login {
         stage.show();
     }
 
+    // Displays a localized alert using the current text direction.
     private void showAlert(
             Alert.AlertType type,
             String title,

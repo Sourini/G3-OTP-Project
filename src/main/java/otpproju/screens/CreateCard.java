@@ -23,7 +23,8 @@ import otpproju.service.FlashcardSetService;
 
 import otpproju.config.I18n;
 
-
+// Displays the flashcard creation form and handles saving
+// a new question and answer to a selected flashcard set.
 public class CreateCard {
 
     private final User user;
@@ -31,6 +32,7 @@ public class CreateCard {
     private final FlashcardService flashcardService;
     private final FlashcardSetService flashcardSetService;
 
+    // Initializes the screen with the current user and flashcard services.
     public CreateCard(User user) {
 
         this.user = user;
@@ -53,6 +55,8 @@ public class CreateCard {
                 );
     }
 
+    // Builds and displays the flashcard creation form, including
+    // flashcard set selection, input validation, and save actions.
     public void show(Stage stage) {
 
         Label title =
@@ -292,6 +296,7 @@ public class CreateCard {
         stage.show();
     }
 
+    // Displays a localized alert for validation or service feedback.
     private void showAlert(
             Alert.AlertType type,
             String title,
