@@ -77,7 +77,9 @@ public class StudyCards {
     public void show(Stage stage) {
 
         setTitle =
-                new Label(I18n.t("studyCards.title"));
+                UIComponents.pageTitle(
+                        I18n.t("studyCards.title")
+                );
 
         setTitle.textProperty().addListener(
                 (observable, oldText, newText) ->
@@ -130,7 +132,7 @@ public class StudyCards {
 
 
         Button loadButton =
-                new Button(
+                UIComponents.dashboardButton(
                         I18n.t("studyCards.loadButton")
                 );
 
@@ -190,9 +192,11 @@ public class StudyCards {
 
 
         answerButton =
-                new Button(
+                UIComponents.primaryButton(
                         I18n.t("studyCards.answerButton")
                 );
+
+        answerButton.setDisable(true);
 
         answerButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -208,9 +212,11 @@ public class StudyCards {
 
 
         nextButton =
-                new Button(
+                UIComponents.primaryButton(
                         I18n.t("studyCards.next")
                 );
+
+        nextButton.setDisable(true);
 
         nextButton.setMaxWidth(
                 Double.MAX_VALUE

@@ -37,8 +37,9 @@ public class Register {
         appTitle.getStyleClass().add("app-title");
 
         Label title =
-                new Label(I18n.t("register.title"));
-        title.getStyleClass().add("page-title");
+                UIComponents.pageTitle(
+                        I18n.t("register.title")
+                );
 
         Label description =
                 new Label(
@@ -77,7 +78,9 @@ public class Register {
         passwordField.setPrefHeight(45);
 
         Button registerButton =
-                new Button(I18n.t("register.createButton"));
+                UIComponents.primaryButton(
+                        I18n.t("register.createButton")
+                );
 
         registerButton.setMaxWidth(
                 Double.MAX_VALUE

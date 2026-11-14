@@ -116,8 +116,9 @@ public class UserPage {
         // HEADER
 
         Label greeting =
-                new Label(
-                        I18n.t("userPage.greet") + (", ") + user.getUsername()
+                UIComponents.pageTitle(
+                        I18n.t("userPage.greet") + ", "
+                                + user.getUsername()
                 );
 
         greeting.getStyleClass().add(
@@ -169,15 +170,9 @@ public class UserPage {
         );
 
         Button createSetButton =
-                new Button(I18n.t("createCardSet.createButton"));
-
-        createSetButton.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        createSetButton.setPrefHeight(
-                42
-        );
+                UIComponents.dashboardButton(
+                        I18n.t("createCardSet.createButton")
+                );
 
         createSetButton.setOnAction(e ->
                 new CreateCardSet(user)
@@ -222,15 +217,9 @@ public class UserPage {
         );
 
         Button createCardButton =
-                new Button(I18n.t("userPage.createButton"));
-
-        createCardButton.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        createCardButton.setPrefHeight(
-                42
-        );
+                UIComponents.dashboardButton(
+                        I18n.t("userPage.createButton")
+                );
 
         createCardButton.setOnAction(e ->
                 new CreateCard(user)
@@ -273,15 +262,8 @@ public class UserPage {
                 true
         );
 
-        Button studyButton =
-                new Button(I18n.t("userPage.studyButton"));
-
-        studyButton.setMaxWidth(
-                Double.MAX_VALUE
-        );
-
-        studyButton.setPrefHeight(
-                42
+        Button studyButton = UIComponents.dashboardButton(
+                I18n.t("userPage.studyButton")
         );
 
         studyButton.setOnAction(e ->
@@ -442,7 +424,7 @@ public class UserPage {
             for (FlashcardSet set : sets) {
 
                 Button setButton =
-                        new Button(
+                        UIComponents.primaryButton(
                                 set.getTitle()
                         );
 

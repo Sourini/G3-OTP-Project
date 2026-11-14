@@ -37,7 +37,7 @@ public class CreateCardSet {
     public void show(Stage stage) {
 
         Label title =
-                new Label(
+                UIComponents.pageTitle(
                         I18n.t("createCardSet.title")
                 );
 
@@ -69,7 +69,9 @@ public class CreateCardSet {
         descriptionField.setPrefRowCount(4);
 
         Button createButton =
-                new Button(I18n.t("createCardSet.createButton"));
+                UIComponents.primaryButton(
+                        I18n.t("createCardSet.createButton")
+                );
 
         createButton.setMaxWidth(
                 Double.MAX_VALUE

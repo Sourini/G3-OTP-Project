@@ -20,18 +20,21 @@ public class Login {
         userService = new UserService(userRepository);
     }
 
+    // LOGIN START
     public void show(Stage stage) {
 
         Label appTitle = new Label(I18n.t("app.title"));
         appTitle.getStyleClass().add("app-title");
 
-        Label title = new Label(I18n.t("login.title"));
-        title.getStyleClass().add("page-title");
+        Label title = UIComponents.pageTitle(
+                I18n.t("login.title")
+        );
 
         Label description = new Label(
                 I18n.t("login.description")
         );
 
+        // EMAIL
         TextField emailField = new TextField();
         emailField.setNodeOrientation(
                 NodeOrientation.LEFT_TO_RIGHT
@@ -39,13 +42,15 @@ public class Login {
         emailField.setPromptText(I18n.t("login.email"));
         emailField.setPrefHeight(45);
 
+        // PASSWORD
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText(I18n.t("login.password"));
         passwordField.setPrefHeight(45);
 
-        Button loginButton = new Button(I18n.t("login.button"));
-        loginButton.setMaxWidth(Double.MAX_VALUE);
-        loginButton.setPrefHeight(45);
+        // REGISTER HYPERLINK / LOGIN
+        Button loginButton = UIComponents.primaryButton(
+                I18n.t("login.button")
+        );
 
         Label registerText = new Label(
                 I18n.t("login.noAccount")
@@ -55,6 +60,7 @@ public class Login {
                 I18n.t("login.registerAccount")
         );
 
+        // CHECK EMAIL+PASSWORD VALIDITY
         loginButton.setOnAction(e -> {
 
             String email = emailField.getText().trim();

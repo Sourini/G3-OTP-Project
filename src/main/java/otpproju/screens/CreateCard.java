@@ -56,7 +56,9 @@ public class CreateCard {
     public void show(Stage stage) {
 
         Label title =
-                new Label(I18n.t("createCard.title"));
+                UIComponents.pageTitle(
+                        I18n.t("createCard.title")
+                );
 
         title.getStyleClass().add(
                 "page-title"
@@ -119,7 +121,9 @@ public class CreateCard {
         answerField.setPrefRowCount(4);
 
         Button createButton =
-                new Button(I18n.t("createCard.createButton"));
+                UIComponents.primaryButton(
+                        I18n.t("createCard.createButton")
+                );
 
         createButton.setMaxWidth(
                 Double.MAX_VALUE
@@ -129,11 +133,9 @@ public class CreateCard {
 
         Button backButton =
                 new Button(I18n.t("createCard.backButton"));
-
         backButton.setMaxWidth(
                 Double.MAX_VALUE
         );
-
         backButton.setPrefHeight(40);
 
         createButton.setOnAction(e -> {

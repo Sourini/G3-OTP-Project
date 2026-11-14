@@ -158,16 +158,26 @@
 
 /* BUTTONS */
 
+.primary-button {
+    -fx-pref-height: 45px;
+    -fx-max-width: infinity;
+    -fx-background-radius: 10px;
+    -fx-font-weight: bold;
+}
+
+.dashboard-button {
+    -fx-pref-height: 42px;
+    -fx-max-width: infinity;
+    -fx-background-radius: 10px;
+    -fx-font-weight: bold;
+}
+
 .button {
     -fx-background-color: #134074;
     -fx-text-fill: #eef4ed;
-
     -fx-font-weight: bold;
-
     -fx-background-radius: 10px;
-
     -fx-padding: 10px 18px;
-
     -fx-cursor: hand;
 }
 
