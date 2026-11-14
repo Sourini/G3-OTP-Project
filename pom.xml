@@ -59,6 +59,13 @@
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>openjfx-monocle</artifactId>
+            <version>${javafx.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -84,6 +91,13 @@
                 <version>3.2.5</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <argLine>
+                        @{argLine}
+                        -Dglass.platform=Monocle
+                        -Dmonocle.platform=Headless
+                        -Dprism.order=sw
+                        -Dprism.text=t2k
+                    </argLine>
                 </configuration>
             </plugin>
 
