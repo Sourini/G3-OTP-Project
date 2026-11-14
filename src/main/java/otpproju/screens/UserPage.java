@@ -31,6 +31,12 @@ public class UserPage {
                 new FlashcardSetService(repository);
     }
 
+    // visible for testing
+    UserPage(User user, FlashcardSetService flashcardSetService) {
+        this.user = user;
+        this.flashcardSetService = flashcardSetService;
+    }
+
     public void show(Stage stage) {
 
         // TOP BAR
