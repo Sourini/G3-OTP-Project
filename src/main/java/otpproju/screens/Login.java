@@ -11,15 +11,25 @@ import otpproju.repository.UserRepository;
 import otpproju.service.UserService;
 import otpproju.config.I18n;
 import javafx.geometry.NodeOrientation;
+import java.util.function.BiConsumer;
 
 // Displays the login screen and handles user authentication.
 // Successful login redirects the user to their dashboard.
 public class Login {
     private final UserService userService;
+    private final BiConsumer<User, Stage> onLoginSuccess;
 
     public Login() {
-        UserRepository userRepository = new UserRepository();
-        userService = new UserService(userRepository);
+        this(
+                new UserService(new UserRepository()),
+                (user, stage) -> new UserPage(user).show(stage)
+        );
+    }
+
+    // visible for testing
+    Login(UserService userService, BiConsumer<User, Stage> onLoginSuccess) {
+        this.userService = userService;
+        this.onLoginSuccess = onLoginSuccess;
     }
 
     // Builds and displays the login form, including input fields,
@@ -88,7 +98,7 @@ public class Login {
                 );
                 loginButton.setDisable(false);
                 loginButton.setText(I18n.t("login.button"));
-                new UserPage(user).show(stage);
+                onLoginSuccess.accept(user, stage);
             } catch (Exception ex) {
 
                 loginButton.setDisable(false);
