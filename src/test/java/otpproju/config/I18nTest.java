@@ -118,4 +118,32 @@ class I18nTest {
         assertEquals(NodeOrientation.RIGHT_TO_LEFT,
                 I18n.getTextOrientation("\u0645\u0631\u062D\u0628\u0627"));
     }
+
+    // check if message can be formatted in all five languages without leaving unresolved placeholders
+    @ParameterizedTest
+    @ValueSource(strings = {"en", "ko", "ru", "ar", "fi"})
+    void formatInsertsPlaceholdersInAllLanguages(String lang) {
+        I18n.setLocale(Locale.forLanguageTag(lang));
+
+        String result = I18n.format("studyCards.progress", 2, 10);
+
+        assertNotNull(result);
+        assertFalse(result.isBlank());
+        assertFalse(result.contains("{0"));
+        assertFalse(result.contains("{1"));
+    }
+
+    // test how l18n class determines base direction of mixed-language text
+    @Test
+    void textOrientationHandlesMixedLanguageText() {
+        assertEquals(
+                NodeOrientation.RIGHT_TO_LEFT,
+                I18n.getTextOrientation("مرحبا test@example.com")
+        );
+
+        assertEquals(
+                NodeOrientation.LEFT_TO_RIGHT,
+                I18n.getTextOrientation("test@example.com مرحبا")
+        );
+    }
 }
