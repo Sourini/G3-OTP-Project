@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 import otpproju.model.User;
 import otpproju.repository.FlashcardSetRepository;
 import otpproju.service.FlashcardSetService;
-
+import java.util.function.Consumer;
 import otpproju.config.I18n;
 
 // Displays the flashcard set creation form and
@@ -24,17 +24,22 @@ public class CreateCardSet {
 
     private final User user;
     private final FlashcardSetService flashcardSetService;
+    private final Consumer<Stage> goToDashboard;
 
     // Initializes the screen with the current user and flashcard set service.
     public CreateCardSet(User user) {
+        this(
+                user,
+                new FlashcardSetService(new FlashcardSetRepository()),
+                stage -> new UserPage(user).show(stage)
+        );
+    }
 
+    // visible for testing
+    CreateCardSet(User user, FlashcardSetService flashcardSetService, Consumer<Stage> goToDashboard) {
         this.user = user;
-
-        FlashcardSetRepository repository =
-                new FlashcardSetRepository();
-
-        flashcardSetService =
-                new FlashcardSetService(repository);
+        this.flashcardSetService = flashcardSetService;
+        this.goToDashboard = goToDashboard;
     }
 
     // Builds and displays the flashcard set form, including input validation,
@@ -138,8 +143,7 @@ public class CreateCardSet {
                         I18n.t("createCardSet.created.message")
                 );
 
-                new UserPage(user)
-                        .show(stage);
+                goToDashboard.accept(stage);
 
             } catch (Exception ex) {
 
@@ -159,7 +163,7 @@ public class CreateCardSet {
         // BACK
 
         backButton.setOnAction(e ->
-                new UserPage(user).show(stage)
+                goToDashboard.accept(stage)
         );
 
         // CONTENT
