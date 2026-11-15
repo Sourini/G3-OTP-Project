@@ -40,3 +40,16 @@ CREATE TABLE IF NOT EXISTS flashcards (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+-- FLASHCARD TRANSLATIONS
+CREATE TABLE IF NOT EXISTS flashcard_translations (
+    card_id       INT NOT NULL,
+    language_code VARCHAR(35) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+    question      TEXT NOT NULL,
+    answer        TEXT NOT NULL,
+    PRIMARY KEY (card_id, language_code),
+    CONSTRAINT fk_flashcard_translations_card
+        FOREIGN KEY (card_id) REFERENCES flashcards(card_id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
