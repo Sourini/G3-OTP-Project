@@ -22,6 +22,7 @@ import otpproju.repository.FlashcardSetRepository;
 import otpproju.service.FlashcardService;
 import otpproju.service.FlashcardSetService;
 import otpproju.config.I18n;
+import java.util.function.Consumer;
 
 // Provides the flashcard study screen, allowing users to select a set,
 // view questions and answers, and track their study progress.
@@ -31,6 +32,7 @@ public class StudyCards {
 
     private final FlashcardService flashcardService;
     private final FlashcardSetService flashcardSetService;
+    private final Consumer<Stage> goToDashboard;
 
     private final List<Flashcard> cards =
             new ArrayList<>();
@@ -47,33 +49,38 @@ public class StudyCards {
     private FlashcardSet initialSet;
 
     public StudyCards(User user) {
-
-        this.user = user;
-
-        FlashcardRepository cardRepository =
-                new FlashcardRepository();
-
-        FlashcardSetRepository setRepository =
-                new FlashcardSetRepository();
-
-        flashcardService =
-                new FlashcardService(
-                        cardRepository,
-                        setRepository
-                );
-
-        flashcardSetService =
-                new FlashcardSetService(
-                        setRepository
-                );
+        this(user, null);
     }
 
     public StudyCards(
             User user,
             FlashcardSet selectedSet
     ) {
-        this(user);
+        this(
+                user,
+                selectedSet,
+                new FlashcardService(
+                        new FlashcardRepository(),
+                        new FlashcardSetRepository()
+                ),
+                new FlashcardSetService(new FlashcardSetRepository()),
+                stage -> new UserPage(user).show(stage)
+        );
+    }
+
+    // visible for testing
+    StudyCards(
+            User user,
+            FlashcardSet selectedSet,
+            FlashcardService flashcardService,
+            FlashcardSetService flashcardSetService,
+            Consumer<Stage> goToDashboard
+    ) {
+        this.user = user;
         this.initialSet = selectedSet;
+        this.flashcardService = flashcardService;
+        this.flashcardSetService = flashcardSetService;
+        this.goToDashboard = goToDashboard;
     }
 
     // Builds and displays the study interface and loads an initially
@@ -279,8 +286,7 @@ public class StudyCards {
 
 
         backButton.setOnAction(e ->
-                new UserPage(user)
-                        .show(stage)
+                goToDashboard.accept(stage)
         );
 
         // CONTENT
