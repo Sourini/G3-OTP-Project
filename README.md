@@ -119,6 +119,14 @@ The database schema is defined in:
 
 `src/main/java/otpproju/flashcard_app_schema.sql`
 
+## Database localization
+
+When creating a flashcard set, select one or more supported content languages: English (`en`), Finnish (`fi`), Korean (`ko`), Arabic (`ar`), and Russian (`ru`). Enter a name and description for each. With one language, the app selects it as the default automatically; with multiple languages, choose a default.
+
+In **Create a Card**, select a set and enter a question and answer in each of its configured languages. In **Study Cards**, sets with multiple languages show a selector with only their supported languages. The app initially selects the interface language if available, or the set default otherwise. Changing the study language changes the card content and study title without changing the interface language. If a requested card translation is missing, the app shows the default question and answer.
+
+The Question and answer are stored in `flashcard_translations`. The set default is recorded in `flashcard_sets.default_language_code`, and set titles and descriptions are stored by language in `flashcard_set_translations`. The translation tables use `utf8mb4`. The app determines reading direction from displayed text, so Arabic content can be read with English menus.
+
 ### Design Diagrams
 
 - [Entity-relationship diagram](Diagrams/er.png)
