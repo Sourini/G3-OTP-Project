@@ -10,6 +10,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -46,7 +47,9 @@ public class StudyCards {
     private Button answerButton;
     private Button nextButton;
 
-    private FlashcardSet initialSet;
+    private final FlashcardSet initialSet;
+    private FlashcardSet loadedSet;
+    private ComboBox<String> studyLanguage;
 
     public StudyCards(User user) {
         this(user, null);
@@ -108,7 +111,24 @@ public class StudyCards {
         );
 
         ComboBox<FlashcardSet> setComboBox =
-                new ComboBox<>();
+                UIComponents.flashcardSetSelector();
+
+        setComboBox.setId("study-set-selector");
+        studyLanguage = ContentLanguages.selector(List.of());
+        studyLanguage.setId("study-language-selector");
+        Label languageLabel = new Label(I18n.t("studyCards.contentLanguage"));
+        languageLabel.setLabelFor(studyLanguage);
+        VBox languagePanel = new VBox(4, languageLabel, studyLanguage);
+        languagePanel.setVisible(false);
+        languagePanel.managedProperty().bind(languagePanel.visibleProperty());
+        setComboBox.valueProperty().addListener((observable, previous, selected) -> {
+            List<String> codes = selected == null ? List.of() : selected.getSupportedLanguages();
+            studyLanguage.getItems().setAll(codes);
+            String preferred = I18n.getLocale().getLanguage();
+            studyLanguage.setValue(codes.contains(preferred) ? preferred
+                    : selected == null ? null : selected.getDefaultLanguage());
+            languagePanel.setVisible(codes.size() > 1);
+        });
 
         setComboBox.setPromptText(
                 I18n.t("studyCards.choose")
@@ -273,6 +293,11 @@ public class StudyCards {
 
             loadCards(selected);
         });
+        studyLanguage.setOnAction(event -> {
+            if (loadedSet != null && loadedSet == setComboBox.getValue()) {
+                loadCards(loadedSet);
+            }
+        });
 
 
         answerButton.setOnAction(e ->
@@ -296,6 +321,7 @@ public class StudyCards {
                         15,
                         setTitle,
                         setComboBox,
+                        languagePanel,
                         loadButton,
                         progressText,
                         cardText,
@@ -329,7 +355,10 @@ public class StudyCards {
         BorderPane root =
                 new BorderPane();
 
-        root.setCenter(centered);
+        ScrollPane scroll = new ScrollPane(centered);
+        scroll.setFitToWidth(true);
+        scroll.getStyleClass().add("dashboard-scroll");
+        root.setCenter(scroll);
 
         root.getStyleClass().add(
                 "dashboard-root"
@@ -351,6 +380,7 @@ public class StudyCards {
 
 
         if (initialSet != null) {
+            setComboBox.setValue(initialSet);
             loadCards(initialSet);
         }
 
@@ -372,19 +402,17 @@ public class StudyCards {
 
         try {
 
+            String selectedLanguage = studyLanguage.getValue();
+            List<Flashcard> loaded = flashcardService.getFlashcardsForSet(selectedSet, selectedLanguage);
+            String localizedTitle = flashcardSetService.getStudyText(selectedSet, selectedLanguage).title();
             cards.clear();
-
-            cards.addAll(
-                    flashcardService
-                            .getFlashcardsForSet(
-                                    selectedSet.getSetId()
-                            )
-            );
+            cards.addAll(loaded);
+            loadedSet = selectedSet;
 
             currentCardIndex = 0;
 
             setTitle.setText(
-                    selectedSet.getTitle()
+                    localizedTitle
             );
 
             if (cards.isEmpty()) {

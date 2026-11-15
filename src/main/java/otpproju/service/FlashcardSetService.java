@@ -5,6 +5,10 @@ import otpproju.repository.FlashcardSetRepository;
 import otpproju.repository.RepositoryException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Set;
+import otpproju.model.SetText;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -63,6 +67,31 @@ public class FlashcardSetService {
         );
 
         return repository.create(set);
+    }
+
+    public FlashcardSet createMultilingualSet(int userId, String defaultLanguage, Map<String, SetText> texts) {
+        validatePositiveId(userId, "User ID");
+        if (defaultLanguage == null || texts.isEmpty() || !texts.containsKey(defaultLanguage)
+                || !Set.of("en", "fi", "ko", "ar", "ru").containsAll(texts.keySet())) {
+            throw new IllegalArgumentException("Choose at least one supported language and a default.");
+        }
+        Map<String, SetText> validated = new LinkedHashMap<>();
+        texts.forEach((language, text) -> {
+            if (text.description() == null || text.description().isBlank()) {
+                throw new IllegalArgumentException("Enter a description for every selected language.");
+            }
+            validated.put(language, new SetText(validateTitle(text.title()), cleanDescription(text.description())));
+        });
+        return repository.createMultilingual(userId, defaultLanguage, validated);
+    }
+
+    public SetText getStudyText(FlashcardSet set, String language) {
+        if (set.hasConfiguredLanguages() && language != null && !language.equals(set.getDefaultLanguage())
+                && set.getSupportedLanguages().contains(language)) {
+            return repository.findTranslation(set.getSetId(), language)
+                    .orElseGet(() -> new SetText(set.getTitle(), set.getDescription()));
+        }
+        return new SetText(set.getTitle(), set.getDescription());
     }
 
     public FlashcardSet getFlashcardSet(int setId) {

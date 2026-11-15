@@ -11,6 +11,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import otpproju.model.CardText;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -135,6 +137,10 @@ public class FlashcardRepository {
     }
 
     public List<Flashcard> findBySetId(int setId) {
+        return findBySetId(setId, null);
+    }
+
+    public List<Flashcard> findBySetId(int setId, String languageCode) {
         String sql = """
                 SELECT
                     card_id,
@@ -148,6 +154,20 @@ public class FlashcardRepository {
                 ORDER BY created_at, card_id
                 """;
 
+        if (languageCode != null) {
+            sql = """
+                    SELECT c.card_id, c.set_id,
+                           COALESCE(t.question, c.question) AS question,
+                           COALESCE(t.answer, c.answer) AS answer,
+                           c.updated_at, c.created_at
+                    FROM flashcards c
+                    LEFT JOIN flashcard_translations t
+                      ON t.card_id = c.card_id AND t.language_code = ?
+                    WHERE c.set_id = ?
+                    ORDER BY c.created_at, c.card_id
+                    """;
+        }
+
         List<Flashcard> flashcards = new ArrayList<>();
 
         try (
@@ -157,7 +177,12 @@ public class FlashcardRepository {
                 PreparedStatement statement =
                         connection.prepareStatement(sql)
         ) {
-            statement.setInt(1, setId);
+            if (languageCode == null) {
+                statement.setInt(1, setId);
+            } else {
+                statement.setString(1, languageCode);
+                statement.setInt(2, setId);
+            }
 
             try (ResultSet resultSet =
                          statement.executeQuery()) {
@@ -177,6 +202,33 @@ public class FlashcardRepository {
                     exception
             );
         }
+    }
+
+    public Flashcard createMultilingual(int setId, String defaultLanguage, Map<String, CardText> texts) {
+        int id = JdbcWrites.inTransaction(connection -> {
+            CardText original = texts.get(defaultLanguage);
+            int cardId = JdbcWrites.insert(connection, """
+                    INSERT INTO flashcards (set_id, question, answer) VALUES (?, ?, ?)
+                    """, setId, original.question(), original.answer());
+            try (PreparedStatement statement = connection.prepareStatement("""
+                    INSERT INTO flashcard_translations (card_id, language_code, question, answer)
+                    VALUES (?, ?, ?, ?)
+                    """)) {
+                for (var entry : texts.entrySet()) {
+                    if (entry.getKey().equals(defaultLanguage)) {
+                        continue;
+                    }
+                    statement.setInt(1, cardId);
+                    statement.setString(2, entry.getKey());
+                    statement.setString(3, entry.getValue().question());
+                    statement.setString(4, entry.getValue().answer());
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+            }
+            return cardId;
+        });
+        return findById(id).orElseThrow();
     }
 
     public List<Flashcard> findAll() {

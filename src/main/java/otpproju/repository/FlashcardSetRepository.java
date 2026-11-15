@@ -11,6 +11,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import otpproju.model.SetText;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -92,6 +94,49 @@ public class FlashcardSetRepository {
         }
     }
 
+    public FlashcardSet createMultilingual(int userId, String defaultLanguage, Map<String, SetText> texts) {
+        int id = JdbcWrites.inTransaction(connection -> {
+            SetText original = texts.get(defaultLanguage);
+            int setId = JdbcWrites.insert(connection, """
+                    INSERT INTO flashcard_sets (user_id, title, description, default_language_code)
+                    VALUES (?, ?, ?, ?)
+                    """, userId, original.title(), original.description(), defaultLanguage);
+            try (PreparedStatement statement = connection.prepareStatement("""
+                    INSERT INTO flashcard_set_translations (set_id, language_code, title, description)
+                    VALUES (?, ?, ?, ?)
+                    """)) {
+                for (var entry : texts.entrySet()) {
+                    statement.setInt(1, setId);
+                    statement.setString(2, entry.getKey());
+                    statement.setString(3, entry.getValue().title());
+                    statement.setString(4, entry.getValue().description());
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+            }
+            return setId;
+        });
+        return findById(id).orElseThrow();
+    }
+
+    public Optional<SetText> findTranslation(int setId, String language) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement("""
+                     SELECT title, description FROM flashcard_set_translations
+                     WHERE set_id = ? AND language_code = ?
+                     """)) {
+            statement.setInt(1, setId);
+            statement.setString(2, language);
+            try (ResultSet rows = statement.executeQuery()) {
+                return rows.next()
+                        ? Optional.of(new SetText(rows.getString("title"), rows.getString("description")))
+                        : Optional.empty();
+            }
+        } catch (SQLException ex) {
+            throw new RepositoryException("Could not load set translation", ex);
+        }
+    }
+
     public Optional<FlashcardSet> findById(int setId) {
         String sql = """
                 SELECT
@@ -100,7 +145,10 @@ public class FlashcardSetRepository {
                     title,
                     description,
                     updated_at,
-                    created_at
+                    created_at, default_language_code,
+                    (SELECT GROUP_CONCAT(t.language_code ORDER BY t.language_code)
+                     FROM flashcard_set_translations t
+                     WHERE t.set_id = flashcard_sets.set_id) AS supported_languages
                 FROM flashcard_sets
                 WHERE set_id = ?
                 """;
@@ -142,7 +190,10 @@ public class FlashcardSetRepository {
                     title,
                     description,
                     updated_at,
-                    created_at
+                    created_at, default_language_code,
+                    (SELECT GROUP_CONCAT(t.language_code ORDER BY t.language_code)
+                     FROM flashcard_set_translations t
+                     WHERE t.set_id = flashcard_sets.set_id) AS supported_languages
                 FROM flashcard_sets
                 WHERE user_id = ?
                 ORDER BY created_at, set_id
@@ -185,7 +236,10 @@ public class FlashcardSetRepository {
                     title,
                     description,
                     updated_at,
-                    created_at
+                    created_at, default_language_code,
+                    (SELECT GROUP_CONCAT(t.language_code ORDER BY t.language_code)
+                     FROM flashcard_set_translations t
+                     WHERE t.set_id = flashcard_sets.set_id) AS supported_languages
                 FROM flashcard_sets
                 ORDER BY created_at, set_id
                 """;
@@ -303,7 +357,7 @@ public class FlashcardSetRepository {
         Timestamp createdAt =
                 resultSet.getTimestamp("created_at");
 
-        return new FlashcardSet(
+        FlashcardSet set = new FlashcardSet(
                 resultSet.getInt("set_id"),
                 resultSet.getInt("user_id"),
                 resultSet.getString("title"),
@@ -315,5 +369,9 @@ public class FlashcardSetRepository {
                         ? null
                         : createdAt.toLocalDateTime()
         );
+        String languages = resultSet.getString("supported_languages");
+        set.setLanguages(resultSet.getString("default_language_code"),
+                languages == null ? List.of() : List.of(languages.split(",")));
+        return set;
     }
 }

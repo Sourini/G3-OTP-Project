@@ -78,6 +78,34 @@ class FlashcardServiceTest {
     }
 
     @Test
+    void multilingualCardUsesSetLanguagesAndFallsBackToDefault() throws Exception {
+        FlashcardSet set = new FlashcardSetService(setRepository).createMultilingualSet(testUserId, "en",
+                java.util.Map.of("en", new otpproju.model.SetText("Programming", "Practice"),
+                        "ar", new otpproju.model.SetText("البرمجة", "تمارين")));
+        assertEquals("البرمجة", setRepository.findTranslation(set.getSetId(), "ar").orElseThrow().title());
+        var english = new otpproju.model.CardText("What is Java?", "A programming language");
+        var arabic = new otpproju.model.CardText("ما هي جافا؟", "لغة برمجة 💻");
+        var variants = java.util.Map.of("en", english, "ar", arabic);
+        assertThrows(IllegalArgumentException.class,
+                () -> service.createMultilingualCard(testUserId, set.getSetId(), java.util.Map.of("en", english)));
+        assertThrows(AuthorizationException.class,
+                () -> service.createMultilingualCard(Integer.MAX_VALUE, set.getSetId(), variants));
+
+        Flashcard card = service.createMultilingualCard(testUserId, set.getSetId(), variants);
+        assertEquals(arabic.answer(), service.getFlashcardsForSet(set, "ar").getFirst().getAnswer());
+        assertEquals(english.answer(), service.getFlashcardsForSet(set, "ko").getFirst().getAnswer());
+
+        try (var connection = otpproju.config.DatabaseConnection.getConnection();
+             var delete = connection.prepareStatement(
+                     "DELETE FROM flashcard_translations WHERE card_id = ? AND language_code = 'ar'")) {
+            delete.setInt(1, card.getCardId());
+            assertEquals(1, delete.executeUpdate());
+        }
+        assertEquals(english.question(), service.getFlashcardsForSet(set, "ar").getFirst().getQuestion());
+        assertEquals(english.answer(), service.getFlashcardsForSet(set, "ar").getFirst().getAnswer());
+    }
+
+    @Test
     void createsAndPersistsValidFlashcard() {
         Flashcard card = service.createFlashcard(
                 testUserId,

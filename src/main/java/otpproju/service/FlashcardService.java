@@ -7,6 +7,10 @@ import otpproju.repository.FlashcardSetRepository;
 import otpproju.repository.RepositoryException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.HashSet;
+import otpproju.model.CardText;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -36,7 +40,9 @@ public class FlashcardService {
             String question,
             String answer
     ) {
-        requireOwnedSet(requestingUserId, setId);
+        if (requireOwnedSet(requestingUserId, setId).hasConfiguredLanguages()) {
+            throw new IllegalArgumentException("Enter both sides in every supported language.");
+        }
 
         Flashcard flashcard = new Flashcard(
                 setId,
@@ -61,6 +67,26 @@ public class FlashcardService {
         validatePositiveId(setId, "Set ID");
 
         return cardRepository.findBySetId(setId);
+    }
+
+    public List<Flashcard> getFlashcardsForSet(FlashcardSet set, String language) {
+        validatePositiveId(set.getSetId(), "Set ID");
+        if (!set.hasConfiguredLanguages() || language == null || language.equals(set.getDefaultLanguage())
+                || !set.getSupportedLanguages().contains(language)) {
+            return getFlashcardsForSet(set.getSetId());
+        }
+        return cardRepository.findBySetId(set.getSetId(), language);
+    }
+
+    public Flashcard createMultilingualCard(int userId, int setId, Map<String, CardText> texts) {
+        FlashcardSet set = requireOwnedSet(userId, setId);
+        if (!set.hasConfiguredLanguages() || !texts.keySet().equals(new HashSet<>(set.getSupportedLanguages()))) {
+            throw new IllegalArgumentException("Enter both sides in every supported language.");
+        }
+        Map<String, CardText> validated = new LinkedHashMap<>();
+        texts.forEach((language, text) -> validated.put(language,
+                new CardText(validateText(text.question(), "Question"), validateText(text.answer(), "Answer"))));
+        return cardRepository.createMultilingual(setId, set.getDefaultLanguage(), validated);
     }
 
     public Flashcard updateFlashcard(

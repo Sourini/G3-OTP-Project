@@ -1,13 +1,32 @@
 package otpproju.screens;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.util.StringConverter;
+import otpproju.model.FlashcardSet;
 
 // Provides reusable JavaFX components to maintain consistent
 // button sizing and page title styling across application screens.
 public final class UIComponents {
 
     private UIComponents() {}
+
+    public static ComboBox<FlashcardSet> flashcardSetSelector() {
+        ComboBox<FlashcardSet> selector = new ComboBox<>();
+        selector.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(FlashcardSet set) {
+                return set == null ? "" : set.getTitle();
+            }
+
+            @Override
+            public FlashcardSet fromString(String text) {
+                throw new UnsupportedOperationException("The set selector is not editable");
+            }
+        });
+        return selector;
+    }
 
     // Creates a full-width button with the specified preferred
     // height and shared primary button styling.

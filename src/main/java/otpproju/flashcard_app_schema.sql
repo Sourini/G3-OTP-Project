@@ -53,3 +53,17 @@ CREATE TABLE IF NOT EXISTS flashcard_translations (
             ON DELETE CASCADE
             ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Existing sets have a NULL default and remain language agnostic.
+ALTER TABLE flashcard_sets ADD COLUMN IF NOT EXISTS default_language_code
+    VARCHAR(35) CHARACTER SET ascii COLLATE ascii_general_ci NULL;
+
+CREATE TABLE IF NOT EXISTS flashcard_set_translations (
+    set_id INT NOT NULL,
+    language_code VARCHAR(35) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    description TEXT NOT NULL,
+    PRIMARY KEY (set_id, language_code),
+    FOREIGN KEY (set_id) REFERENCES flashcard_sets(set_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

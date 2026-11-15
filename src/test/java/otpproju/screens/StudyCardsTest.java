@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -42,6 +43,12 @@ class StudyCardsTest {
         }
 
         @Override
+        public otpproju.model.SetText getStudyText(FlashcardSet set, String language) {
+            return new otpproju.model.SetText(
+                    "ar".equals(language) ? "علم الأحياء" : set.getTitle(), set.getDescription());
+        }
+
+        @Override
         public List<FlashcardSet> getFlashcardSetsForUser(int userId) {
             if (error != null) {
                 throw error;
@@ -54,9 +61,16 @@ class StudyCardsTest {
         final Map<Integer, List<Flashcard>> cardsBySet = new HashMap<>();
         volatile RuntimeException error;
         volatile int calls = 0;
+        final Map<String, List<Flashcard>> translations = new HashMap<>();
 
         FakeFlashcardService() {
             super(new FlashcardRepository(), new FlashcardSetRepository());   // never used
+        }
+
+        @Override
+        public List<Flashcard> getFlashcardsForSet(FlashcardSet set, String languageCode) {
+            List<Flashcard> originals = getFlashcardsForSet(set.getSetId());
+            return translations.getOrDefault(languageCode, originals);
         }
 
         @Override
@@ -114,7 +128,7 @@ class StudyCardsTest {
 
     @SuppressWarnings("unchecked")
     private ComboBox<FlashcardSet> combo(FxRobot robot) {
-        return robot.lookup(".combo-box").queryAs(ComboBox.class);
+        return robot.lookup("#study-set-selector").queryAs(ComboBox.class);
     }
 
     private void selectSet(FxRobot robot, FlashcardSet set) {
@@ -157,6 +171,28 @@ class StudyCardsTest {
     private void loadBiology(FxRobot robot) {
         selectSet(robot, biology);
         click(robot, loadButton(robot));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void switchingStudyLanguageChangesContentWithoutChangingInterface(FxRobot robot) {
+        Locale interfaceLocale = I18n.getLocale();
+        cardService.translations.put("ar", List.of(
+                card(1, 1, "ما هي جافا؟", "لغة برمجة")));
+        biology.setLanguages("en", List.of("en", "ar"));
+        open(biology);
+
+        ComboBox<String> selector = robot.lookup("#study-language-selector").queryAs(ComboBox.class);
+        assertEquals(List.of("en", "ar"), selector.getItems());
+        robot.interact(() -> selector.setValue("ar"));
+
+        assertEquals("ما هي جافا؟", cardText(robot));
+        assertEquals("علم الأحياء", titleText(robot));
+        assertEquals(interfaceLocale, I18n.getLocale());
+        assertEquals(javafx.geometry.NodeOrientation.RIGHT_TO_LEFT,
+                robot.lookup(".flashcard").queryLabeled().getEffectiveNodeOrientation());
+        robot.interact(() -> selector.setValue("en"));
+        assertEquals("Q1", cardText(robot));
     }
 
     @Test

@@ -1,12 +1,32 @@
 package otpproju.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class FlashcardSet extends BaseEntity {
 
     private int userId;
     private String title;
     private String description;
+    private String defaultLanguage;
+    private List<String> supportedLanguages = List.of();
+
+    public boolean hasConfiguredLanguages() {
+        return defaultLanguage != null;
+    }
+
+    public String getDefaultLanguage() {
+        return defaultLanguage;
+    }
+
+    public List<String> getSupportedLanguages() {
+        return supportedLanguages;
+    }
+
+    public void setLanguages(String defaultLanguage, List<String> supportedLanguages) {
+        this.defaultLanguage = defaultLanguage;
+        this.supportedLanguages = List.copyOf(supportedLanguages);
+    }
 
     public FlashcardSet() {
     }

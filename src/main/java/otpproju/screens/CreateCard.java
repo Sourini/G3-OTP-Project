@@ -1,6 +1,10 @@
 package otpproju.screens;
 
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import javafx.scene.control.ScrollPane;
+import otpproju.model.CardText;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -83,7 +87,7 @@ public class CreateCard {
                 );
 
         ComboBox<FlashcardSet> setComboBox =
-                new ComboBox<>();
+                UIComponents.flashcardSetSelector();
 
         setComboBox.setPromptText(
                 I18n.t("createCard.chooseSet")
@@ -134,6 +138,26 @@ public class CreateCard {
 
         answerField.setPrefRowCount(4);
 
+        ContentLanguages.followTextDirection(questionField);
+        ContentLanguages.followTextDirection(answerField);
+        VBox fieldsPanel = new VBox(12, questionField, answerField);
+        Map<String, CardFields> fields = new LinkedHashMap<>();
+        setComboBox.valueProperty().addListener((observable, previous, set) -> {
+            fields.clear();
+            fieldsPanel.getChildren().clear();
+            if (set == null || !set.hasConfiguredLanguages()) {
+                fieldsPanel.getChildren().addAll(questionField, answerField);
+                return;
+            }
+            for (String code : set.getSupportedLanguages()) {
+                TextArea question = localizedField("createCard.questionField");
+                TextArea answer = localizedField("createCard.answerField");
+                fields.put(code, new CardFields(question, answer));
+                fieldsPanel.getChildren().add(new VBox(5,
+                        new Label(ContentLanguages.displayName(code)), question, answer));
+            }
+        });
+
         Button createButton =
                 UIComponents.primaryButton(
                         I18n.t("createCard.createButton")
@@ -178,8 +202,14 @@ public class CreateCard {
                 return;
             }
 
-            if (question.isEmpty()
-                    || answer.isEmpty()) {
+            Map<String, CardText> texts = new LinkedHashMap<>();
+            fields.forEach((code, entry) -> texts.put(code,
+                    new CardText(entry.question().getText(), entry.answer().getText())));
+            boolean missing = selectedSet.hasConfiguredLanguages()
+                    ? texts.isEmpty() || texts.values().stream()
+                        .anyMatch(text -> text.question().isBlank() || text.answer().isBlank())
+                    : question.isEmpty() || answer.isEmpty();
+            if (missing) {
 
                 showAlert(
                         Alert.AlertType.ERROR,
@@ -197,12 +227,11 @@ public class CreateCard {
 
             try {
 
-                flashcardService.createFlashcard(
-                        user.getUserId(),
-                        selectedSet.getSetId(),
-                        question,
-                        answer
-                );
+                if (selectedSet.hasConfiguredLanguages()) {
+                    flashcardService.createMultilingualCard(user.getUserId(), selectedSet.getSetId(), texts);
+                } else {
+                    flashcardService.createFlashcard(user.getUserId(), selectedSet.getSetId(), question, answer);
+                }
 
                 showAlert(
                         Alert.AlertType.INFORMATION,
@@ -212,6 +241,10 @@ public class CreateCard {
 
                 questionField.clear();
                 answerField.clear();
+                fields.values().forEach(entry -> {
+                    entry.question().clear();
+                    entry.answer().clear();
+                });
 
                 createButton.setDisable(false);
                 createButton.setText(
@@ -245,8 +278,7 @@ public class CreateCard {
                         title,
                         description,
                         setComboBox,
-                        questionField,
-                        answerField,
+                        fieldsPanel,
                         createButton,
                         backButton
                 );
@@ -276,7 +308,10 @@ public class CreateCard {
         BorderPane root =
                 new BorderPane();
 
-        root.setCenter(centered);
+        ScrollPane scroll = new ScrollPane(centered);
+        scroll.setFitToWidth(true);
+        scroll.getStyleClass().add("dashboard-scroll");
+        root.setCenter(scroll);
 
         root.getStyleClass().add(
                 "dashboard-root"
@@ -324,5 +359,16 @@ public class CreateCard {
         );
 
         alert.showAndWait();
+    }    private TextArea localizedField(String key) {
+        TextArea field = new TextArea();
+        field.setPromptText(I18n.t(key));
+        field.setPrefRowCount(3);
+        field.setWrapText(true);
+        ContentLanguages.followTextDirection(field);
+        return field;
     }
+
+    private record CardFields(TextArea question, TextArea answer) {}
+
+
 }

@@ -11,6 +11,8 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 import otpproju.config.I18n;
 import otpproju.model.FlashcardSet;
+import otpproju.model.SetText;
+import java.util.Map;
 import otpproju.model.User;
 import otpproju.repository.FlashcardSetRepository;
 import otpproju.service.FlashcardSetService;
@@ -34,6 +36,12 @@ class CreateCardSetTest {
 
         FakeFlashcardSetService() {
             super(new FlashcardSetRepository());   // the repository is never used
+        }
+
+        @Override
+        public FlashcardSet createMultilingualSet(int userId, String language, Map<String, SetText> texts) {
+            SetText text = texts.get(language);
+            return createFlashcardSet(userId, text.title().trim(), text.description().trim());
         }
 
         @Override
@@ -104,7 +112,7 @@ class CreateCardSetTest {
     void emptyTitle_showsError_andDoesNotCallService(FxRobot robot) {
         clickCreate(robot);
 
-        assertEquals(I18n.t("createCardSet.emptyTitle.message"), alert(robot).getContentText());
+        assertEquals(I18n.t("content.setFieldsRequired"), alert(robot).getContentText());
         closeAlert(robot);
 
         assertEquals(0, service.calls);
@@ -116,7 +124,7 @@ class CreateCardSetTest {
         fillForm(robot, "     ", "some description");
         clickCreate(robot);
 
-        assertEquals(I18n.t("createCardSet.emptyTitle.message"), alert(robot).getContentText());
+        assertEquals(I18n.t("content.setFieldsRequired"), alert(robot).getContentText());
         closeAlert(robot);
 
         assertEquals(0, service.calls);
@@ -141,16 +149,13 @@ class CreateCardSetTest {
     }
 
     @Test
-    void emptyDescription_isAllowed(FxRobot robot) {
+    void emptyDescription_isRejected(FxRobot robot) {
         fillForm(robot, "Biology", "");
         clickCreate(robot);
+        assertEquals(I18n.t("content.setFieldsRequired"), alert(robot).getContentText());
         closeAlert(robot);
-        waitUntil(robot, navigatedToDashboard::get);
-
-        assertEquals(1, service.calls);
-        assertEquals("Biology", service.lastTitle);
-        assertEquals("", service.lastDescription);
-        assertTrue(navigatedToDashboard.get());
+        assertEquals(0, service.calls);
+        assertFalse(navigatedToDashboard.get());
     }
 
     @Test
