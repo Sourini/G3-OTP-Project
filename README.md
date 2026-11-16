@@ -131,8 +131,8 @@ The Question and answer are stored in `flashcard_translations`. The set default 
 
 - [Entity-relationship diagram](Diagrams/updated-er.png)
 ![er diagram image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/updated-er.png?raw=true)
-- [Database schema diagram](Diagrams/dbschema.png)
-![db schema image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/dbschema.png?raw=true)
+- [Database schema diagram](Diagrams/dbschema2.png)
+![db schema image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/dbschema2.png?raw=true)
 - [Use-case diagram](Diagrams/usecase.png)
 ![usecase image](https://github.com/Sourini/G3-OTP-Project/blob/main/Diagrams/uu%C3%A4m%C3%A4lkakkone.png?raw=true)
 
